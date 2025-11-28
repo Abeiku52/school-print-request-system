@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1><i class="fas fa-lion"></i> My Dashboard</h1>
+            <p>Welcome back, {{ current_user.name }}!</p>
+        </div>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('requests.new_request') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> New Request
+            </a>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card-total">
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ requests|length }}</h3>
+                <p>Total Requests</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-card-pending">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ pending_count }}</h3>
+                <p>Pending</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-card-progress">
+            <div class="stat-icon">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ in_progress_count }}</h3>
+                <p>In Progress</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-card-completed">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ completed_count }}</h3>
+                <p>Completed</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Requests List -->
+    <div class="requests-section">
+        <div class="section-header">
+            <h2><i class="fas fa-list"></i> My Print Requests</h2>
+        </div>
+        
+        {% if requests %}
+            <div class="requests-grid">
+                {% for request in requests %}
+                    <div class="request-card fade-in">
+                        <div class="request-header">
+                            <div class="request-number">
+                                <i class="fas fa-hashtag"></i>
+                                {{ request.request_number }}
+                            </div>
+                            <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                                {{ get_status_display(request.status) }}
+                            </span>
+                        </div>
+                        
+                        <div class="request-body">
+                            <div class="request-info">
+                                <div class="info-item" data-label="Document">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>{{ request.file_name }}</span>
+                                </div>
+                                <div class="info-item" data-label="Submitted">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ format_date(request.submitted_at) }}</span>
+                                </div>
+                                <div class="info-item" data-label="Copies">
+                                    <i class="fas fa-copy"></i>
+                                    <span>{{ request.number_of_copies }} {{ pluralize(request.number_of_copies, 'copy', 'copies') }}</span>
+                                </div>
+                                <div class="info-item" data-label="Format">
+                                    <i class="fas fa-{{ 'palette' if request.print_format == 'color' else 'adjust' }}"></i>
+                                    <span>{{ 'Color Print' if request.print_format == 'color' else 'Black & White' }}</span>
+                                </div>
+                            </div>
+                            
+                            {% if request.clarifying_message %}
+                                <div class="request-message">
+                                    <i class="fas fa-comment"></i>
+                                    <span>{{ truncate_text(request.clarifying_message, 100) }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="request-footer">
+                            <a href="{{ url_for('requests.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            
+                            {% if request.status == 'pending' %}
+                                <form method="POST" action="{{ url_for('requests.cancel_request', request_id=request.id) }}" style="display: inline;" onsubmit="return confirmAction('Are you sure you want to cancel this request?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('requests.download_file', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>No Print Requests Yet</h3>
+                <p>You haven't submitted any print requests. Click the button below to create your first request.</p>
+                <a href="{{ url_for('requests.new_request') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Create First Request
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

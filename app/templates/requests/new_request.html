@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}New Print Request - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> New Print Request</h1>
+        <p>Fill out the form below to submit your printing request</p>
+    </div>
+    
+    <div class="request-form-container">
+        <form method="POST" action="{{ url_for('requests.new_request') }}" enctype="multipart/form-data" class="print-request-form">
+            {{ form.hidden_tag() }}
+            
+            <!-- File Upload Section -->
+            <div class="form-section">
+                <h2><i class="fas fa-file-upload"></i> Document Upload</h2>
+                
+                <div class="form-group">
+                    <label for="file">
+                        Documents to Print <span class="required">*</span>
+                    </label>
+                    <div class="file-upload-wrapper">
+                        {{ form.file(class="form-control-file", accept=".pdf,.doc,.docx", multiple=True) }}
+                        <div class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Click to upload or drag and drop</span>
+                            <small>PDF, DOC, DOCX • Up to 10 files (Max 50MB each)</small>
+                        </div>
+                    </div>
+                    <div class="file-display" style="display: none;"></div>
+                    <div class="file-count-info" style="display: none; margin-top: 12px; padding: 12px; background: rgba(0, 82, 165, 0.05); border-radius: 8px; color: var(--text-secondary); font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> <span id="fileCountText">0 files selected</span>
+                    </div>
+                    {% if form.file.errors %}
+                        <div class="form-error">
+                            {% for error in form.file.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Print Specifications -->
+            <div class="form-section">
+                <h2><i class="fas fa-cog"></i> Print Specifications</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="number_of_pages">
+                            Number of Pages <span class="required">*</span>
+                        </label>
+                        {{ form.number_of_pages(class="form-control", min="1", max="1000", placeholder="e.g., 10") }}
+                        {% if form.number_of_pages.errors %}
+                            <div class="form-error">
+                                {% for error in form.number_of_pages.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="number_of_copies">
+                            Number of Copies <span class="required">*</span>
+                        </label>
+                        {{ form.number_of_copies(class="form-control", min="1", max="100", placeholder="e.g., 5") }}
+                        {% if form.number_of_copies.errors %}
+                            <div class="form-error">
+                                {% for error in form.number_of_copies.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="page_range">
+                        Page Range (Optional)
+                        <i class="fas fa-info-circle" title="Specify which pages to print"></i>
+                    </label>
+                    {{ form.page_range(class="form-control") }}
+                    <small class="form-text">
+                        <i class="fas fa-lightbulb"></i> 
+                        Examples: "5" (page 5 only), "1-10" (pages 1 to 10), "1-5, 8, 10-15" (multiple ranges). 
+                        Leave empty to print all pages.
+                    </small>
+                    {% if form.page_range.errors %}
+                        <div class="form-error">
+                            {% for error in form.page_range.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="total-pages-display" style="display: none;">
+                    Total pages to print: <strong>0</strong>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>
+                        Print Format <span class="required">*</span>
+                    </label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="print_format" value="bw" checked required>
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">
+                                <i class="fas fa-adjust"></i>
+                                Black & White
+                            </span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="print_format" value="color" required>
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">
+                                <i class="fas fa-palette"></i>
+                                Color
+                            </span>
+                        </label>
+                    </div>
+                    {% if form.print_format.errors %}
+                        <div class="form-error">
+                            {% for error in form.print_format.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paper_size">
+                            Paper Size <span class="required">*</span>
+                        </label>
+                        {{ form.paper_size(class="form-control") }}
+                        {% if form.paper_size.errors %}
+                            <div class="form-error">
+                                {% for error in form.paper_size.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Print Options -->
+            <div class="form-section">
+                <h2><i class="fas fa-sliders-h"></i> Print Options</h2>
+                
+                <!-- Print Sides -->
+                <div class="form-group full-width">
+                    <label>
+                        Print Sides <span class="required">*</span>
+                    </label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="is_double_sided" value="false" checked required>
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">
+                                <i class="fas fa-file"></i>
+                                Single-Sided
+                                <small>Print on one side only</small>
+                            </span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="is_double_sided" value="true" required>
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">
+                                <i class="fas fa-copy"></i>
+                                Double-Sided
+                                <small>Print on both sides</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Other Options -->
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        {{ form.is_stapled(class="form-check-input") }}
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">
+                            <i class="fas fa-paperclip"></i>
+                            Stapled
+                            <small>Staple the pages together</small>
+                        </span>
+                    </label>
+                    
+                    <label class="checkbox-label">
+                        {{ form.is_laminated(class="form-check-input") }}
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">
+                            <i class="fas fa-shield-alt"></i>
+                            Laminated
+                            <small>Protect with lamination</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Additional Instructions -->
+            <div class="form-section">
+                <h2><i class="fas fa-comment-alt"></i> Additional Instructions</h2>
+                
+                <div class="form-group">
+                    <label for="clarifying_message">
+                        Special Instructions (Optional)
+                    </label>
+                    {{ form.clarifying_message(class="form-control", rows="4", placeholder="Any special instructions or clarifications for the print administrator...") }}
+                    <small class="form-text">Maximum 500 characters</small>
+                    {% if form.clarifying_message.errors %}
+                        <div class="form-error">
+                            {% for error in form.clarifying_message.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{{ url_for('requests.dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

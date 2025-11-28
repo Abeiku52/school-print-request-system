@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Request #{{ request.request_number }} - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <a href="{{ url_for('requests.dashboard') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <h1><i class="fas fa-file-alt"></i> Request Details</h1>
+        </div>
+        <span class="badge badge-lg badge-{{ get_status_badge_class(request.status) }}">
+            {{ get_status_display(request.status) }}
+        </span>
+    </div>
+    
+    <div class="detail-container">
+        <!-- Request Information -->
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2><i class="fas fa-info-circle"></i> Request Information</h2>
+            </div>
+            <div class="detail-table-wrapper">
+                <table class="detail-table">
+                    <tbody>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-hashtag"></i>
+                                Request Number
+                            </td>
+                            <td class="table-value">
+                                <strong>{{ request.request_number }}</strong>
+                                <button onclick="copyToClipboard('{{ request.request_number }}')" class="btn-icon" data-tooltip="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-user"></i>
+                                Submitted By
+                            </td>
+                            <td class="table-value">{{ request.user.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-building"></i>
+                                Department
+                            </td>
+                            <td class="table-value">{{ request.user.faculty_department }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-calendar-plus"></i>
+                                Submitted On
+                            </td>
+                            <td class="table-value">{{ format_datetime(request.submitted_at) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-clock"></i>
+                                Last Updated
+                            </td>
+                            <td class="table-value">{{ format_datetime(request.updated_at) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Document Information -->
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2><i class="fas fa-file-alt"></i> Document Information</h2>
+            </div>
+            <div class="detail-table-wrapper">
+                <table class="detail-table">
+                    <tbody>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-file"></i>
+                                File Name
+                            </td>
+                            <td class="table-value">{{ request.file_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-file-pdf"></i>
+                                Number of Pages
+                            </td>
+                            <td class="table-value">{{ request.number_of_pages }}</td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-list-ol"></i>
+                                Page Range
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-badge spec-badge-info">
+                                    {{ request.get_formatted_page_range() }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-copy"></i>
+                                Number of Copies
+                            </td>
+                            <td class="table-value">{{ request.number_of_copies }}</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td class="table-label">
+                                <i class="fas fa-calculator"></i>
+                                Total Pages
+                            </td>
+                            <td class="table-value"><strong class="total-pages">{{ request.get_total_pages() }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Print Specifications -->
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2><i class="fas fa-print"></i> Print Specifications</h2>
+            </div>
+            <div class="detail-table-wrapper">
+                <table class="detail-table">
+                    <tbody>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-palette"></i>
+                                Print Format
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-badge spec-badge-{{ 'color' if request.print_format == 'color' else 'bw' }}">
+                                    <i class="fas fa-{{ 'palette' if request.print_format == 'color' else 'adjust' }}"></i>
+                                    {{ 'Color Print' if request.print_format == 'color' else 'Black & White' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-file-alt"></i>
+                                Paper Size
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-value">{{ request.paper_size }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-book-open"></i>
+                                Double-Sided
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-status spec-status-{{ 'yes' if request.is_double_sided else 'no' }}">
+                                    <i class="fas fa-{{ 'check-circle' if request.is_double_sided else 'times-circle' }}"></i>
+                                    {{ 'Yes' if request.is_double_sided else 'No' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-paperclip"></i>
+                                Stapled
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-status spec-status-{{ 'yes' if request.is_stapled else 'no' }}">
+                                    <i class="fas fa-{{ 'check-circle' if request.is_stapled else 'times-circle' }}"></i>
+                                    {{ 'Yes' if request.is_stapled else 'No' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-shield-alt"></i>
+                                Laminated
+                            </td>
+                            <td class="table-value">
+                                <span class="spec-status spec-status-{{ 'yes' if request.is_laminated else 'no' }}">
+                                    <i class="fas fa-{{ 'check-circle' if request.is_laminated else 'times-circle' }}"></i>
+                                    {{ 'Yes' if request.is_laminated else 'No' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Additional Instructions -->
+        {% if request.clarifying_message %}
+            <div class="detail-card">
+                <div class="detail-header">
+                    <h2><i class="fas fa-comment-alt"></i> Additional Instructions</h2>
+                </div>
+                <div class="detail-body">
+                    <p class="clarifying-message">{{ request.clarifying_message }}</p>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Actions -->
+        <div class="detail-actions">
+            <a href="{{ url_for('requests.download_file', request_id=request.id) }}" class="btn btn-primary">
+                <i class="fas fa-download"></i> Download File
+            </a>
+            
+            {% if request.status == 'pending' and request.user_id == current_user.id %}
+                <form method="POST" action="{{ url_for('requests.cancel_request', request_id=request.id) }}" style="display: inline;" onsubmit="return confirmAction('Are you sure you want to cancel this request?')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Cancel Request
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

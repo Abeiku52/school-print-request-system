@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Requests - Admin - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-list"></i> Manage Print Requests</h1>
+        <p>View and manage all print requests</p>
+    </div>
+    
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="{{ url_for('admin.admin_requests', status='all') }}" class="filter-tab {{ 'active' if status_filter == 'all' else '' }}">
+            <i class="fas fa-th-list"></i> All ({{ all_requests|length }})
+        </a>
+        <a href="{{ url_for('admin.admin_requests', status='pending') }}" class="filter-tab {{ 'active' if status_filter == 'pending' else '' }}">
+            <i class="fas fa-clock"></i> Pending ({{ pending|length }})
+        </a>
+        <a href="{{ url_for('admin.admin_requests', status='in_progress') }}" class="filter-tab {{ 'active' if status_filter == 'in_progress' else '' }}">
+            <i class="fas fa-spinner"></i> In Progress ({{ in_progress|length }})
+        </a>
+        <a href="{{ url_for('admin.admin_requests', status='completed') }}" class="filter-tab {{ 'active' if status_filter == 'completed' else '' }}">
+            <i class="fas fa-check-circle"></i> Completed ({{ completed|length }})
+        </a>
+        <a href="{{ url_for('admin.admin_requests', status='cancelled') }}" class="filter-tab {{ 'active' if status_filter == 'cancelled' else '' }}">
+            <i class="fas fa-times-circle"></i> Cancelled ({{ cancelled|length }})
+        </a>
+    </div>
+    
+    <!-- Requests List -->
+    {% if all_requests %}
+        <div class="requests-grid">
+            {% for request in all_requests %}
+                <div class="request-card admin-request-card fade-in">
+                    <div class="request-header">
+                        <div class="request-number">
+                            <i class="fas fa-hashtag"></i>
+                            {{ request.request_number }}
+                        </div>
+                        <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                            {{ get_status_display(request.status) }}
+                        </span>
+                    </div>
+                    
+                    <div class="request-body">
+                        <div class="request-user">
+                            <img src="{{ get_profile_picture_url(request.user) }}" alt="{{ request.user.name }}" class="user-avatar-small">
+                            <div>
+                                <strong>{{ request.user.name }}</strong>
+                                <small>{{ request.user.faculty_department }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="request-info">
+                            <div class="info-item">
+                                <i class="fas fa-file"></i>
+                                <span>{{ truncate_text(request.file_name, 40) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ format_date(request.submitted_at) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-copy"></i>
+                                <span>{{ request.number_of_copies }} copies × {{ request.number_of_pages }} pages</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="request-footer">
+                        <a href="{{ url_for('admin.view_request', request_id=request.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View & Manage
+                        </a>
+                        <a href="{{ url_for('admin.download_file', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3>No Requests Found</h3>
+            <p>There are no requests matching the selected filter.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

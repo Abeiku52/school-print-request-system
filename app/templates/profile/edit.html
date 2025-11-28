@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <a href="{{ url_for('profile.view_profile') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+        <h1><i class="fas fa-edit"></i> Edit Profile</h1>
+    </div>
+    
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('profile.edit_profile') }}" enctype="multipart/form-data" class="profile-form">
+            {{ form.hidden_tag() }}
+            
+            <!-- Profile Picture -->
+            <div class="form-section">
+                <h2><i class="fas fa-camera"></i> Profile Picture</h2>
+                
+                <div class="profile-picture-upload">
+                    <img src="{{ get_profile_picture_url(current_user) }}" alt="{{ current_user.name }}" class="profile-picture-preview" id="profilePicturePreview">
+                    
+                    <div class="upload-controls">
+                        <div class="form-group">
+                            <label for="profile_picture" class="btn btn-outline">
+                                <i class="fas fa-upload"></i> Choose New Picture
+                            </label>
+                            {{ form.profile_picture(class="form-control-file", style="display: none;", accept="image/*") }}
+                            {% if form.profile_picture.errors %}
+                                <div class="form-error">
+                                    {% for error in form.profile_picture.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">JPG, PNG, or GIF (Max 5MB)</small>
+                        </div>
+                        
+                        {% if current_user.profile_picture %}
+                            <form method="POST" action="{{ url_for('profile.delete_picture') }}" style="display: inline;" onsubmit="return confirmAction('Are you sure you want to delete your profile picture?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Remove Picture
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h2><i class="fas fa-user"></i> Personal Information</h2>
+                
+                <div class="form-group">
+                    <label for="name">
+                        Full Name <span class="required">*</span>
+                    </label>
+                    {{ form.name(class="form-control", placeholder="Enter your full name") }}
+                    {% if form.name.errors %}
+                        <div class="form-error">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" class="form-control" value="{{ current_user.email }}" disabled>
+                    <small class="form-text">Email cannot be changed</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Card ID</label>
+                    <input type="text" class="form-control" value="{{ current_user.card_id }}" disabled>
+                    <small class="form-text">Card ID cannot be changed</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Faculty Department</label>
+                    <input type="text" class="form-control" value="{{ current_user.faculty_department }}" disabled>
+                    <small class="form-text">Department cannot be changed</small>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{{ url_for('profile.view_profile') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Profile picture preview
+document.getElementById('profile_picture').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePicturePreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

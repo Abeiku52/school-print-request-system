@@ -1,0 +1,248 @@
+/* ===================================
+   STATUS PAGE - BEAUTIFUL DESIGN
+   =================================== */
+
+/* Admin Detail Container */
+.admin-detail-container {
+    display: grid;
+    gap: var(--spacing-xl);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Status Management Card */
+.status-management-card {
+    background: linear-gradient(135deg, rgba(0, 82, 165, 0.05) 0%, rgba(255, 209, 0, 0.03) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(0, 82, 165, 0.15);
+    transition: all 0.3s ease;
+}
+
+.status-management-card:hover {
+    box-shadow: 0 12px 48px rgba(0, 82, 165, 0.15);
+    transform: translateY(-4px);
+}
+
+.status-management-card h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 3px solid var(--accent);
+}
+
+.status-management-card h2 i {
+    color: var(--accent);
+}
+
+/* Status Form */
+.status-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* Status Options */
+.status-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+.status-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.status-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+    cursor: pointer;
+}
+
+.status-option input[type="radio"]:checked + .status-badge {
+    border-color: currentColor;
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.status-option:hover .status-badge {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* User Info Header */
+.user-info-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(0, 82, 165, 0.05) 0%, rgba(255, 209, 0, 0.03) 100%);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.user-avatar-medium {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 82, 165, 0.2);
+}
+
+.user-info-header h3 {
+    color: var(--primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.user-info-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Info Bar - All Information in One */
+.info-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(0, 82, 165, 0.1);
+    transition: all 0.3s ease;
+}
+
+.info-bar:hover {
+    box-shadow: 0 12px 48px rgba(0, 82, 165, 0.12);
+    transform: translateY(-2px);
+}
+
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.info-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 2px solid var(--accent);
+}
+
+.info-section-header i {
+    color: var(--accent);
+}
+
+.info-section-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.info-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 82, 165, 0.2);
+}
+
+.info-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex: 1;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.info-item strong {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.info-item i {
+    color: var(--primary);
+    font-size: 0.875rem;
+    width: 14px;
+}
+
+/* Instructions Card */
+.instructions-card {
+    background: linear-gradient(135deg, rgba(255, 209, 0, 0.1) 0%, rgba(0, 82, 165, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    border-left: 4px solid var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.instructions-card h3 {
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.instructions-card h3 i {
+    color: var(--accent);
+}
+
+.instructions-card p {
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .status-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-bar {
+        grid-template-columns: 1fr;
+    }
+}

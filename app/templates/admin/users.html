@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin - Lincoln Community School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-users"></i> Manage Users</h1>
+        <p>View and manage all registered users</p>
+    </div>
+    
+    <!-- Users Grid -->
+    {% if users %}
+        <div class="users-grid">
+            {% for user in users %}
+                <div class="user-card fade-in">
+                    <div class="user-card-header">
+                        <img src="{{ get_profile_picture_url(user) }}" alt="{{ user.name }}" class="user-card-avatar">
+                        <div class="user-card-info">
+                            <h3>{{ user.name }}</h3>
+                            <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="user-card-body">
+                        <div class="user-detail">
+                            <span class="user-detail-label"><i class="fas fa-id-card"></i> Card ID</span>
+                            <span class="user-detail-value">{{ user.card_id }}</span>
+                        </div>
+                        <div class="user-detail">
+                            <span class="user-detail-label"><i class="fas fa-building"></i> Department</span>
+                            <span class="user-detail-value">{{ user.faculty_department }}</span>
+                        </div>
+                        <div class="user-detail">
+                            <span class="user-detail-label"><i class="fas fa-calendar"></i> Joined</span>
+                            <span class="user-detail-value">{{ format_date(user.created_at) }}</span>
+                        </div>
+                        <div class="user-detail">
+                            <span class="user-detail-label"><i class="fas fa-file-alt"></i> Total Requests</span>
+                            <span class="user-detail-value">{{ user.print_requests.count() }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-card-footer">
+                        <a href="{{ url_for('admin.view_user', user_id=user.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>No Users Found</h3>
+            <p>There are no registered users in the system.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

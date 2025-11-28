@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }} - Admin - Lincoln Community School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <a href="{{ url_for('admin.users') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+            <h1><i class="fas fa-user"></i> {{ user.name }}</h1>
+        </div>
+    </div>
+    
+    <!-- User Profile Card -->
+    <div class="profile-card">
+        <div class="profile-picture-section">
+            <img src="{{ get_profile_picture_url(user) }}" alt="{{ user.name }}" class="profile-picture-large">
+        </div>
+        
+        <div class="profile-info-section">
+            <h2>{{ user.name }}</h2>
+            <p class="profile-email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+            
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label"><i class="fas fa-id-card"></i> Card ID</span>
+                    <span class="detail-value">{{ user.card_id }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label"><i class="fas fa-building"></i> Department</span>
+                    <span class="detail-value">{{ user.faculty_department }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label"><i class="fas fa-calendar"></i> Member Since</span>
+                    <span class="detail-value">{{ format_date(user.created_at) }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label"><i class="fas fa-file-alt"></i> Total Requests</span>
+                    <span class="detail-value">{{ requests|length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User's Requests -->
+    <div class="requests-section">
+        <div class="section-header">
+            <h2><i class="fas fa-list"></i> User's Print Requests</h2>
+        </div>
+        
+        {% if requests %}
+            <div class="requests-grid">
+                {% for request in requests %}
+                    <div class="request-card fade-in">
+                        <div class="request-header">
+                            <div class="request-number">
+                                <i class="fas fa-hashtag"></i>
+                                {{ request.request_number }}
+                            </div>
+                            <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                                {{ get_status_display(request.status) }}
+                            </span>
+                        </div>
+                        
+                        <div class="request-body">
+                            <div class="request-info">
+                                <div class="info-item" data-label="Document">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>{{ request.file_name }}</span>
+                                </div>
+                                <div class="info-item" data-label="Submitted">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>{{ format_date(request.submitted_at) }}</span>
+                                </div>
+                                <div class="info-item" data-label="Copies">
+                                    <i class="fas fa-copy"></i>
+                                    <span>{{ request.number_of_copies }} {{ pluralize(request.number_of_copies, 'copy', 'copies') }}</span>
+                                </div>
+                                <div class="info-item" data-label="Format">
+                                    <i class="fas fa-{{ 'palette' if request.print_format == 'color' else 'adjust' }}"></i>
+                                    <span>{{ 'Color Print' if request.print_format == 'color' else 'Black & White' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="request-footer">
+                            <a href="{{ url_for('admin.view_request', request_id=request.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> View & Manage
+                            </a>
+                            <a href="{{ url_for('admin.download_file', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>No Requests Yet</h3>
+                <p>This user hasn't submitted any print requests.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
