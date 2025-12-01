@@ -23,9 +23,9 @@
                 <p class="profile-email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
                 
                 <div class="profile-details">
-                    <div class="detail-item">
-                        <span class="detail-label"><i class="fas fa-coins"></i> Print Credits</span>
-                        <span class="detail-value" style="color: #667eea; font-weight: bold;">{{ "%.2f"|format(user.print_credit) }}</span>
+                    <div class="detail-item" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 12px; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <span class="detail-label"><i class="fas fa-wallet"></i> Print Credit Balance</span>
+                        <span class="detail-value" style="color: #667eea; font-weight: bold; font-size: 1.3rem;">GH₵ {{ "%.2f"|format(user.print_credit) }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="detail-label"><i class="fas fa-id-card"></i> Card ID</span>

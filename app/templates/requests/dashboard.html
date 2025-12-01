@@ -18,13 +18,13 @@
     
     <!-- Statistics Cards -->
     <div class="stats-grid">
-        <div class="stat-card stat-card-credit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="stat-icon">
-                <i class="fas fa-coins"></i>
+        <div class="stat-card stat-card-credit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+            <div class="stat-icon" style="color: white;">
+                <i class="fas fa-wallet"></i>
             </div>
             <div class="stat-content">
-                <h3 style="color: white;">{{ "%.2f"|format(current_user.print_credit) }}</h3>
-                <p style="color: rgba(255,255,255,0.9);">Print Credits</p>
+                <h3 style="color: white; font-size: 2rem; font-weight: bold;">GH₵ {{ "%.2f"|format(current_user.print_credit) }}</h3>
+                <p style="color: rgba(255,255,255,0.95); font-size: 0.95rem;">Print Credit Balance</p>
             </div>
         </div>
         
