@@ -24,10 +24,12 @@ class User(UserMixin, db.Model):
     faculty_department = db.Column(db.String(100), nullable=False)
     profile_picture = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    print_credit = db.Column(db.Float, default=100.0, nullable=False)  # Print credits
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
-    # Relationship
+    # Relationships
     print_requests = db.relationship('PrintRequest', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    credit_transactions = db.relationship('CreditTransaction', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     
     def set_password(self, password):
         """Hash and set password"""
@@ -44,6 +46,38 @@ class User(UserMixin, db.Model):
     def get_completed_requests_count(self):
         """Get count of completed print requests"""
         return self.print_requests.filter_by(status='completed').count()
+    
+    def has_sufficient_credit(self, amount):
+        """Check if user has enough credit"""
+        return self.print_credit >= amount
+    
+    def deduct_credit(self, amount, description="Print job"):
+        """Deduct credit from user account"""
+        if self.has_sufficient_credit(amount):
+            self.print_credit -= amount
+            # Create transaction record
+            transaction = CreditTransaction(
+                user_id=self.id,
+                amount=-amount,
+                balance_after=self.print_credit,
+                transaction_type='debit',
+                description=description
+            )
+            db.session.add(transaction)
+            return True
+        return False
+    
+    def add_credit(self, amount, description="Credit added"):
+        """Add credit to user account"""
+        self.print_credit += amount
+        transaction = CreditTransaction(
+            user_id=self.id,
+            amount=amount,
+            balance_after=self.print_credit,
+            transaction_type='credit',
+            description=description
+        )
+        db.session.add(transaction)
     
     def __repr__(self):
         return f'<User {self.email}>'
@@ -116,3 +150,19 @@ class PrintRequest(db.Model):
     
     def __repr__(self):
         return f'<PrintRequest {self.request_number}>'
+
+
+class CreditTransaction(db.Model):
+    """Track all credit transactions"""
+    __tablename__ = 'credit_transactions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)  # Positive for credit, negative for debit
+    balance_after = db.Column(db.Float, nullable=False)
+    transaction_type = db.Column(db.String(20), nullable=False)  # 'credit' or 'debit'
+    description = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    def __repr__(self):
+        return f'<CreditTransaction {self.id}: {self.amount}>'

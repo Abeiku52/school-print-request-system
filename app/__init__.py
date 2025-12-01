@@ -40,12 +40,15 @@ def create_app(config_name='default'):
     
     # Register blueprints
     from app.routes import main, auth, requests, profile, admin, errors
+    from app.api import bp as api_bp
+    
     app.register_blueprint(main.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(requests.bp)
     app.register_blueprint(profile.bp)
     app.register_blueprint(admin.bp)
     app.register_blueprint(errors.bp)
+    app.register_blueprint(api_bp)  # Register API blueprint
     
     # Register template helpers
     from app.utils.template_helpers import (
