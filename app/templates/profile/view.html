@@ -24,6 +24,10 @@
                 
                 <div class="profile-details">
                     <div class="detail-item">
+                        <span class="detail-label"><i class="fas fa-coins"></i> Print Credits</span>
+                        <span class="detail-value" style="color: #667eea; font-weight: bold;">{{ "%.2f"|format(user.print_credit) }}</span>
+                    </div>
+                    <div class="detail-item">
                         <span class="detail-label"><i class="fas fa-id-card"></i> Card ID</span>
                         <span class="detail-value">{{ user.card_id }}</span>
                     </div>

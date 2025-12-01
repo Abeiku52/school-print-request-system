@@ -18,6 +18,16 @@
     
     <!-- Statistics Cards -->
     <div class="stats-grid">
+        <div class="stat-card stat-card-credit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-icon">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ "%.2f"|format(current_user.print_credit) }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Print Credits</p>
+            </div>
+        </div>
+        
         <div class="stat-card stat-card-total">
             <div class="stat-icon">
                 <i class="fas fa-file-alt"></i>
