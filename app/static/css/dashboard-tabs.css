@@ -1,0 +1,158 @@
+/* Dashboard Tabs Styles */
+
+.dashboard-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    margin-bottom: -2px;
+}
+
+.tab-button:hover {
+    color: #667eea;
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.tab-button.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.tab-button i {
+    font-size: 1.1rem;
+}
+
+.tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 0.5rem;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.tab-button.active .tab-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tab-content-container {
+    position: relative;
+    min-height: 300px;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+
+@media (max-width: 768px) {
+    .dashboard-tabs {
+        gap: 0.25rem;
+        padding-bottom: 0;
+    }
+    
+    .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+    }
+    
+    .tab-button span:not(.tab-count) {
+        display: none;
+    }
+    
+    .tab-button i {
+        font-size: 1.25rem;
+    }
+    
+    .tab-count {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        min-width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+    }
+}
+
+/* Tablet */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .tab-button {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark Mode Support */
+
+@media (prefers-color-scheme: dark) {
+    .dashboard-tabs {
+        border-bottom-color: #374151;
+    }
+    
+    .tab-button {
+        color: #9ca3af;
+    }
+    
+    .tab-button:hover {
+        color: #667eea;
+        background-color: rgba(102, 126, 234, 0.1);
+    }
+    
+    .tab-button.active {
+        color: #667eea;
+        background-color: rgba(102, 126, 234, 0.1);
+    }
+    
+    .tab-count {
+        background: #374151;
+        color: #e5e7eb;
+    }
+}

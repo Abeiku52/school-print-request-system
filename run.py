@@ -1,6 +1,6 @@
 import os
 from app import create_app, db
-from app.models import User, PrintRequest
+from app.models import User, PrintRequest, Notification
 
 # create the app
 app = create_app(os.getenv('FLASK_ENV', 'development'))
@@ -12,7 +12,8 @@ def make_shell_context():
     return {
         'db': db,
         'User': User,
-        'PrintRequest': PrintRequest
+        'PrintRequest': PrintRequest,
+        'Notification': Notification
     }
 
 
@@ -21,6 +22,30 @@ def init_db():
     """initialize database tables"""
     db.create_all()
     print('✓ Database initialized')
+
+
+@app.cli.command()
+def migrate_notifications():
+    """add notifications table to existing database"""
+    try:
+        # Create all tables (will only create missing ones)
+        db.create_all()
+        
+        # Verify notifications table exists
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        if 'notifications' in inspector.get_table_names():
+            print('✓ Notifications table created successfully')
+            
+            # Show indexes
+            indexes = inspector.get_indexes('notifications')
+            print(f'✓ Created {len(indexes)} indexes')
+            for idx in indexes:
+                print(f"  - Index on: {', '.join(idx['column_names'])}")
+        else:
+            print('✗ Failed to create notifications table')
+    except Exception as e:
+        print(f'✗ Error: {str(e)}')
 
 
 @app.cli.command()

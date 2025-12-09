@@ -1,0 +1,301 @@
+/* Sidebar Navigation Styles */
+
+/* Hamburger Menu Button */
+.hamburger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #0052A5 0%, #003d7a 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 12px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-right: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 82, 165, 0.3);
+    position: relative;
+    z-index: 1000;
+}
+
+.hamburger-menu:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 82, 165, 0.4);
+    background: linear-gradient(135deg, #003d7a 0%, #002a5c 100%);
+}
+
+.hamburger-menu span {
+    width: 100%;
+    height: 3px;
+    background: white;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-menu.active {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Navbar container adjustments */
+.navbar .container {
+    display: flex;
+    align-items: center;
+}
+
+/* Navbar brand adjustments */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    position: fixed;
+    top: 0;
+    left: -320px;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 1100;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar-nav.active {
+    left: 0;
+}
+
+/* Push content to the right when sidebar is open - Desktop only */
+@media (min-width: 769px) {
+    body.sidebar-open {
+        overflow-x: hidden;
+    }
+    
+    body.sidebar-open .navbar,
+    body.sidebar-open .main-content,
+    body.sidebar-open .footer {
+        transform: translateX(320px);
+        transition: transform 0.3s ease;
+    }
+    
+    /* Adjust sidebar overlay */
+    body.sidebar-open .sidebar-overlay {
+        left: 320px;
+        width: calc(100% - 320px);
+    }
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #0052A5 0%, #003d7a 100%);
+    color: white;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.sidebar-links {
+    padding: 1rem 0;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: linear-gradient(90deg, rgba(0, 82, 165, 0.08) 0%, transparent 100%);
+    border-left-color: #0052A5;
+    color: #0052A5;
+}
+
+.sidebar-link i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.sidebar-link-danger {
+    color: #ef4444;
+}
+
+.sidebar-link-danger:hover {
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, transparent 100%);
+    border-left-color: #ef4444;
+    color: #dc2626;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 0.75rem 1.5rem;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Navbar Right Side */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+/* User Avatar Small */
+.user-avatar-small {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-avatar-small:hover {
+    border-color: #0052A5;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 82, 165, 0.3);
+}
+
+/* Adjust navbar credit for cleaner look */
+.navbar-credit {
+    margin-right: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar-nav {
+        width: 280px;
+        left: -280px;
+    }
+    
+    .hamburger-menu {
+        width: 44px;
+        height: 44px;
+        display: flex !important;
+        margin-right: 1rem;
+    }
+    
+    .navbar-credit {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.85rem;
+    }
+    
+    .user-avatar-small {
+        width: 38px;
+        height: 38px;
+    }
+    
+    /* No page shift on mobile */
+    body.sidebar-open .navbar,
+    body.sidebar-open .main-content,
+    body.sidebar-open .footer {
+        transform: none;
+    }
+}
+
+/* Smooth animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.sidebar-nav.active {
+    animation: slideIn 0.3s ease;
+}
+
+/* Hide old mobile menu toggle */
+.mobile-menu-toggle {
+    display: none;
+}
+
+/* Scrollbar for sidebar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}

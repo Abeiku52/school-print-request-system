@@ -13,17 +13,26 @@ bp = Blueprint('requests', __name__, url_prefix='/requests')
 @login_required
 def dashboard():
     """User dashboard showing all print requests"""
-    # Get all requests for current user, sorted by most recent first
-    requests = PrintRequest.query.filter_by(user_id=current_user.id)\
-        .order_by(PrintRequest.submitted_at.desc()).all()
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Show 10 requests per page
     
-    # Get counts by status
-    pending_count = sum(1 for r in requests if r.status == 'pending')
-    in_progress_count = sum(1 for r in requests if r.status == 'in_progress')
-    completed_count = sum(1 for r in requests if r.status == 'completed')
+    # Get paginated requests for current user
+    pagination = PrintRequest.query.filter_by(user_id=current_user.id)\
+        .order_by(PrintRequest.submitted_at.desc())\
+        .paginate(page=page, per_page=per_page, error_out=False)
+    
+    requests = pagination.items
+    
+    # Get counts by status (all requests, not just current page)
+    all_requests = PrintRequest.query.filter_by(user_id=current_user.id).all()
+    pending_count = sum(1 for r in all_requests if r.status == 'pending')
+    in_progress_count = sum(1 for r in all_requests if r.status == 'in_progress')
+    completed_count = sum(1 for r in all_requests if r.status == 'completed')
     
     return render_template('requests/dashboard.html', 
                          requests=requests,
+                         pagination=pagination,
                          pending_count=pending_count,
                          in_progress_count=in_progress_count,
                          completed_count=completed_count)
@@ -57,7 +66,7 @@ def new_request():
             page_range=form.page_range.data.strip() if form.page_range.data else None,
             number_of_copies=form.number_of_copies.data,
             is_double_sided=form.is_double_sided.data,
-            print_format=form.print_format.data,
+            print_format='color' if form.is_color.data else 'bw',
             paper_size=form.paper_size.data,
             is_stapled=form.is_stapled.data,
             is_laminated=form.is_laminated.data,
@@ -145,3 +154,70 @@ def download_file(request_id):
         as_attachment=True,
         download_name=print_request.file_name
     )
+
+
+# Notification endpoints for web interface
+@bp.route('/api/notifications/unread')
+@login_required
+def get_unread_notifications():
+    """Get unread notifications for current user (web interface)"""
+    from app.services import NotificationService
+    from flask import jsonify
+    
+    try:
+        limit = request.args.get('limit', 10, type=int)
+        notifications = NotificationService.get_unread_notifications(current_user.id, limit=limit)
+        
+        return jsonify({
+            'notifications': [{
+                'id': n.id,
+                'message': n.message,
+                'status': n.status,
+                'request_number': n.print_request.request_number,
+                'request_id': n.request_id,
+                'created_at': n.created_at.isoformat(),
+                'is_read': n.is_read
+            } for n in notifications],
+            'count': len(notifications)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/api/notifications/<int:notification_id>/read', methods=['POST'])
+@login_required
+def mark_notification_read(notification_id):
+    """Mark a notification as read (web interface)"""
+    from app.services import NotificationService
+    from flask import jsonify
+    
+    try:
+        success = NotificationService.mark_as_read(notification_id, current_user.id)
+        
+        if success:
+            return jsonify({
+                'message': 'Notification marked as read',
+                'notification_id': notification_id
+            })
+        else:
+            return jsonify({'error': 'Notification not found or unauthorized'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/api/notifications/read-all', methods=['POST'])
+@login_required
+def mark_all_notifications_read():
+    """Mark all notifications as read (web interface)"""
+    from app.services import NotificationService
+    from flask import jsonify
+    
+    try:
+        count = NotificationService.mark_all_as_read(current_user.id)
+        
+        return jsonify({
+            'message': f'{count} notifications marked as read',
+            'count': count
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

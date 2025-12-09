@@ -90,11 +90,7 @@ class PrintRequestForm(FlaskForm):
         NumberRange(min=1, max=100, message='Number of copies must be between 1 and 100')
     ])
     is_double_sided = BooleanField('Double-Sided Printing')
-    print_format = RadioField('Print Format', 
-        choices=[('bw', 'Black & White'), ('color', 'Color')],
-        default='bw',
-        validators=[DataRequired(message='Please select a print format')]
-    )
+    is_color = BooleanField('Color Printing (uncheck for Black & White)')
     paper_size = SelectField('Paper Size',
         choices=[('A4', 'A4'), ('A3', 'A3'), ('A5', 'A5')],
         default='A4',

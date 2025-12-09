@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     # Relationships
     print_requests = db.relationship('PrintRequest', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     credit_transactions = db.relationship('CreditTransaction', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     
     def set_password(self, password):
         """Hash and set password"""
@@ -143,10 +144,32 @@ class PrintRequest(db.Model):
         except:
             return self.page_range  # Return raw string if parsing fails
     
-    def update_status(self, new_status):
-        """Update request status and timestamp"""
+    def update_status(self, new_status, create_notification=True):
+        """
+        Update request status and timestamp
+        Optionally creates a notification for the user
+        
+        Args:
+            new_status: The new status to set
+            create_notification: Whether to create a notification (default: True)
+        """
+        old_status = self.status
         self.status = new_status
         self.updated_at = datetime.utcnow()
+        
+        # Create notification if status changed and flag is True
+        if create_notification and old_status != new_status:
+            try:
+                from app.services import NotificationService
+                NotificationService.create_status_notification(
+                    self.user_id,
+                    self.id,
+                    old_status,
+                    new_status
+                )
+            except Exception as e:
+                # Log error but don't fail the status update
+                print(f"Warning: Failed to create notification: {str(e)}")
     
     def __repr__(self):
         return f'<PrintRequest {self.request_number}>'
@@ -166,3 +189,38 @@ class CreditTransaction(db.Model):
     
     def __repr__(self):
         return f'<CreditTransaction {self.id}: {self.amount}>'
+
+
+class Notification(db.Model):
+    """Notification model for user alerts"""
+    __tablename__ = 'notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    request_id = db.Column(db.Integer, db.ForeignKey('print_requests.id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    notification_type = db.Column(db.String(50), default='status_change', nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    is_read = db.Column(db.Boolean, default=False, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    
+    # Relationships
+    print_request = db.relationship('PrintRequest', backref='notifications')
+    
+    def mark_as_read(self):
+        """Mark notification as read"""
+        self.is_read = True
+    
+    def get_status_display(self):
+        """Get human-readable status"""
+        status_map = {
+            'pending': 'Pending',
+            'in_progress': 'In Progress',
+            'processing': 'Processing',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled'
+        }
+        return status_map.get(self.status, self.status.title())
+    
+    def __repr__(self):
+        return f'<Notification {self.id}: {self.notification_type} for Request {self.request_id}>'

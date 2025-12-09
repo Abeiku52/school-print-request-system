@@ -1,187 +1,167 @@
-# 🖨️ School Print Request System
+# Lincoln Community School Print Request System
 
-A professional web application for managing print requests in educational institutions with print credit tracking and REST API.
+A modern, user-friendly web application for managing print requests at Lincoln Community School. Built with Flask and designed for both staff and administrators.
 
-## ✨ Features
+## Features
 
-### Core Features
-- 📝 **Print Request Management** - Submit and track print jobs
-- 👨‍💼 **Admin Dashboard** - Comprehensive management interface
-- 💳 **Print Credit System** - Track and manage user print credits
-- 📧 **Email Notifications** - Automatic status update notifications
-- 👤 **User Profiles** - Customizable profiles with avatars
-- 📊 **Credit Transactions** - Complete transaction history
+### For Staff Members
+- **Submit Print Requests**: Upload documents and specify printing requirements
+- **Track Requests**: Monitor the status of all print requests in real-time
+- **Print Credit Management**: View and manage print credit balance
+- **Notifications**: Receive instant notifications when request status changes
+- **Request History**: Search and filter through past print requests
+- **Mobile Friendly**: Full functionality on smartphones and tablets
 
-### REST API
-- 🔌 **RESTful API** - Full API access with JWT authentication
-- 📚 **API Documentation** - Complete API docs included
-- 🔐 **Secure Authentication** - JWT token-based auth
-- 📈 **Statistics Endpoint** - System-wide statistics
+### For Administrators
+- **Request Management**: Review, approve, and process print requests
+- **User Management**: Manage staff accounts and credit allocations
+- **Dashboard Analytics**: View system statistics and usage reports
+- **Status Updates**: Update request status with automatic user notifications
+- **Reporting**: Generate comprehensive reports on print usage
 
-## 🚀 Quick Start
+### Technical Features
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Real-time Notifications**: Bell icon notifications for status updates
+- **Search & Filter**: Quickly find requests by number, file name, or status
+- **Pagination**: Efficient browsing of large request lists
+- **Secure Authentication**: Role-based access control (Staff/Admin)
+- **File Management**: Secure document upload and storage
+- **Email Notifications**: Automated email alerts for status changes
+- **REST API**: Full API access with JWT authentication
+
+## Technology Stack
+
+- **Backend**: Python 3.8+, Flask
+- **Database**: SQLite (development), PostgreSQL/MySQL (production)
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Authentication**: Flask-Login, JWT
+- **Email**: Flask-Mail
+- **File Handling**: Pillow (image processing)
+
+## Installation
 
 ### Prerequisites
-- Python 3.9+
-- pip
+- Python 3.8 or higher
+- pip (Python package manager)
+- Virtual environment (recommended)
 
-### Installation
+### Setup Instructions
 
+1. **Clone the repository**
 ```bash
-# Clone repository
-git clone https://github.com/Abeiku52/school-print-request-system.git
-cd school-print-request-system
+git clone https://github.com/yourusername/print-request-system.git
+cd print-request-system
+```
 
-# Create virtual environment
+2. **Create virtual environment**
+```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
-# Install dependencies
+3. **Install dependencies**
+```bash
 pip install -r requirements.txt
+```
 
-# Initialize database
+4. **Configure environment**
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+5. **Initialize database**
+```bash
 flask init-db
-flask seed-db
-
-# Run application
-python run.py
+flask seed-db  # Creates admin and sample users
 ```
 
-Visit http://localhost:5000
-
-## 🔑 Default Credentials
-
-**Administrator:**
-- Email: `admin@school.edu`
-- Password: `admin123`
-- Starting Credit: 100.0
-
-**Teacher:**
-- Email: `sarah.johnson@school.edu`
-- Password: `teacher123`
-- Starting Credit: 100.0
-
-⚠️ Change these in production!
-
-## 💳 Print Credit System
-
-- Each user has a print credit balance
-- Credits are deducted when print jobs are processed
-- Admins can add/deduct credits
-- Complete transaction history tracking
-- Low credit warnings
-
-## 🔌 REST API
-
-Full REST API with JWT authentication. See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for details.
-
-**Quick Example:**
+6. **Run the application**
 ```bash
-# Login
-curl -X POST http://localhost:5000/api/v1/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@school.edu","password":"admin123"}'
-
-# Get users (use token from login)
-curl -X GET http://localhost:5000/api/v1/users \
-  -H "Authorization: Bearer YOUR_TOKEN"
+flask run
 ```
 
-**API Endpoints:**
-- `POST /api/v1/login` - Get auth token
-- `GET /api/v1/users` - List users
-- `POST /api/v1/users/<id>/credit` - Manage credits
-- `GET /api/v1/users/<id>/transactions` - Credit history
-- `GET /api/v1/requests` - List print requests
-- `GET /api/v1/stats` - System statistics
+Visit `http://localhost:5000` in your browser.
 
-## 📁 Project Structure
+## Default Credentials
 
-```
-school-print-request-system/
-├── app/
-│   ├── api/                # REST API
-│   │   ├── auth.py        # JWT authentication
-│   │   ├── routes.py      # API endpoints
-│   │   └── errors.py      # Error handlers
-│   ├── routes/            # Web routes
-│   ├── templates/         # HTML templates
-│   ├── static/            # CSS, JS, images
-│   ├── utils/             # Helper functions
-│   ├── models.py          # Database models
-│   └── forms.py           # Form definitions
-├── uploads/               # User files
-├── config.py             # Configuration
-├── run.py                # Entry point
-└── requirements.txt      # Dependencies
-```
+After running `flask seed-db`:
 
-## 🛠️ Tech Stack
+**Admin Account:**
+- Email: admin@school.edu
+- Password: admin123
 
-- **Backend:** Flask (Python)
-- **Database:** SQLite (upgradable to PostgreSQL)
-- **ORM:** SQLAlchemy
-- **Authentication:** Flask-Login + JWT
-- **Email:** Flask-Mail
-- **API:** RESTful with JWT tokens
-- **Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5
+**Sample Staff Accounts:**
+- Email: [teacher-email] / Password: teacher123
 
-## 📧 Email Setup (Optional)
+**⚠️ Important**: Change these passwords immediately in production!
 
-Create a `.env` file:
+## Configuration
 
-```bash
-MAIL_USERNAME=your-email@gmail.com
+Key configuration options in `.env`:
+
+```env
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=sqlite:///dev_print_requests.db
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@school.edu
 MAIL_PASSWORD=your-app-password
-MAIL_DEFAULT_SENDER=noreply@yourschool.edu
 ```
 
-For Gmail, generate an [App Password](https://support.google.com/accounts/answer/185833).
+## Project Structure
 
-## 🌐 Deployment
-
-### Heroku
-
-```bash
-heroku create your-app-name
-git push heroku main
-heroku run flask init-db
-heroku run flask seed-db
+```
+print-request-system/
+├── app/
+│   ├── api/              # REST API endpoints
+│   ├── routes/           # Web routes
+│   ├── static/           # CSS, JS, images
+│   ├── templates/        # HTML templates
+│   ├── utils/            # Helper functions
+│   ├── forms.py          # WTForms
+│   └── models.py         # Database models
+├── uploads/              # User uploaded files
+├── config.py             # Configuration
+├── run.py                # Application entry point
+└── requirements.txt      # Python dependencies
 ```
 
-### Environment Variables
+## API Documentation
 
-Set these in production:
-- `SECRET_KEY` - Flask secret key
-- `DATABASE_URL` - Database connection string
-- `MAIL_USERNAME` - Email username
-- `MAIL_PASSWORD` - Email password
+The system includes a REST API for programmatic access. See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for details.
 
-## 📊 Database Models
+## Deployment
 
-- **User** - User accounts with credit balance
-- **PrintRequest** - Print job requests
-- **CreditTransaction** - Credit transaction history
+For production deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
-## 🤝 Contributing
+## Contributing
 
-Contributions welcome! Please:
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📝 License
+## License
 
-MIT License - see LICENSE file
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🐛 Issues
+## Support
 
-Found a bug? [Open an issue](https://github.com/Abeiku52/school-print-request-system/issues)
+For technical support or questions:
+- Email: it@lincolnschool.edu
+- Create an issue in the GitHub repository
 
-## 📞 Support
+## Acknowledgments
 
-For questions or support, open an issue on GitHub.
+- Lincoln Community School IT Department
+- All staff members who provided feedback during development
+- Flask and Python communities
 
 ---
 
-**Built with ❤️ for educational institutions**
+**Version**: 1.0.0  
+**Last Updated**: December 2024  
+**Developed for**: Lincoln Community School

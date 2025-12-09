@@ -2,6 +2,15 @@
 
 {% block title %}Dashboard - School Print Request System{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-tabs.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard-tabs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="dashboard-header">
@@ -18,6 +27,7 @@
     
     <!-- Statistics Cards -->
     <div class="stats-grid">
+        {% if not current_user.is_admin %}
         <div class="stat-card stat-card-credit" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
             <div class="stat-icon" style="color: white;">
                 <i class="fas fa-wallet"></i>
@@ -27,6 +37,7 @@
                 <p style="color: rgba(255,255,255,0.95); font-size: 0.95rem;">Print Credit Balance</p>
             </div>
         </div>
+        {% endif %}
         
         <div class="stat-card stat-card-total">
             <div class="stat-icon">
@@ -69,15 +80,48 @@
         </div>
     </div>
     
-    <!-- Requests List -->
+    <!-- Requests Tabs -->
     <div class="requests-section">
         <div class="section-header">
             <h2><i class="fas fa-list"></i> My Print Requests</h2>
         </div>
         
-        {% if requests %}
-            <div class="requests-grid">
-                {% for request in requests %}
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="requestSearch" class="search-input" placeholder="Search by request number, file name, or status...">
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="dashboard-tabs" role="tablist" aria-label="Print requests tabs">
+            <button class="tab-button active" data-tab="total" role="tab" aria-selected="true" aria-controls="tab-total" id="tab-button-total">
+                <i class="fas fa-file-alt"></i>
+                <span>Total Prints</span>
+                <span class="tab-count">{{ requests|length }}</span>
+            </button>
+            <button class="tab-button" data-tab="pending" role="tab" aria-selected="false" aria-controls="tab-pending" id="tab-button-pending">
+                <i class="fas fa-clock"></i>
+                <span>Pending</span>
+                <span class="tab-count">{{ pending_count }}</span>
+            </button>
+            <button class="tab-button" data-tab="in_progress" role="tab" aria-selected="false" aria-controls="tab-in_progress" id="tab-button-in_progress">
+                <i class="fas fa-spinner"></i>
+                <span>In Progress</span>
+                <span class="tab-count">{{ in_progress_count }}</span>
+            </button>
+            <button class="tab-button" data-tab="completed" role="tab" aria-selected="false" aria-controls="tab-completed" id="tab-button-completed">
+                <i class="fas fa-check-circle"></i>
+                <span>Completed</span>
+                <span class="tab-count">{{ completed_count }}</span>
+            </button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content-container">
+            <!-- Total Tab -->
+            <div class="tab-content active" id="tab-total" role="tabpanel" aria-labelledby="tab-button-total" aria-hidden="false">
+                {% if requests %}
+                    <div class="requests-grid">
+                        {% for request in requests %}
                     <div class="request-card fade-in">
                         <div class="request-header">
                             <div class="request-number">
@@ -135,19 +179,199 @@
                             </a>
                         </div>
                     </div>
-                {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <h3>No Print Requests Yet</h3>
+                        <p>You haven't submitted any print requests. Click the button below to create your first request.</p>
+                        <a href="{{ url_for('requests.new_request') }}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Create First Request
+                        </a>
+                    </div>
+                {% endif %}
             </div>
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-inbox"></i>
-                </div>
-                <h3>No Print Requests Yet</h3>
-                <p>You haven't submitted any print requests. Click the button below to create your first request.</p>
-                <a href="{{ url_for('requests.new_request') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle"></i> Create First Request
-                </a>
+            
+            <!-- Pending Tab -->
+            <div class="tab-content" id="tab-pending" role="tabpanel" aria-labelledby="tab-button-pending" aria-hidden="true">
+                {% set pending_requests = requests|selectattr('status', 'equalto', 'pending')|list %}
+                {% if pending_requests %}
+                    <div class="requests-grid">
+                        {% for request in pending_requests %}
+                            <div class="request-card fade-in">
+                                <div class="request-header">
+                                    <div class="request-number">
+                                        <i class="fas fa-hashtag"></i>
+                                        {{ request.request_number }}
+                                    </div>
+                                    <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                                        {{ get_status_display(request.status) }}
+                                    </span>
+                                </div>
+                                <div class="request-body">
+                                    <div class="request-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>{{ request.file_name }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>{{ format_date(request.submitted_at) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="request-footer">
+                                    <a href="{{ url_for('requests.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <form method="POST" action="{{ url_for('requests.cancel_request', request_id=request.id) }}" style="display: inline;" onsubmit="return confirmAction('Are you sure?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>No Pending Requests</h3>
+                        <p>You don't have any pending print requests.</p>
+                    </div>
+                {% endif %}
             </div>
+            
+            <!-- In Progress Tab -->
+            <div class="tab-content" id="tab-in_progress" role="tabpanel" aria-labelledby="tab-button-in_progress" aria-hidden="true">
+                {% set in_progress_requests = requests|selectattr('status', 'equalto', 'in_progress')|list %}
+                {% if in_progress_requests %}
+                    <div class="requests-grid">
+                        {% for request in in_progress_requests %}
+                            <div class="request-card fade-in">
+                                <div class="request-header">
+                                    <div class="request-number">
+                                        <i class="fas fa-hashtag"></i>
+                                        {{ request.request_number }}
+                                    </div>
+                                    <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                                        {{ get_status_display(request.status) }}
+                                    </span>
+                                </div>
+                                <div class="request-body">
+                                    <div class="request-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>{{ request.file_name }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>{{ format_date(request.submitted_at) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="request-footer">
+                                    <a href="{{ url_for('requests.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <h3>No Requests In Progress</h3>
+                        <p>You don't have any requests being processed.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Completed Tab -->
+            <div class="tab-content" id="tab-completed" role="tabpanel" aria-labelledby="tab-button-completed" aria-hidden="true">
+                {% set completed_requests = requests|selectattr('status', 'equalto', 'completed')|list %}
+                {% if completed_requests %}
+                    <div class="requests-grid">
+                        {% for request in completed_requests %}
+                            <div class="request-card fade-in">
+                                <div class="request-header">
+                                    <div class="request-number">
+                                        <i class="fas fa-hashtag"></i>
+                                        {{ request.request_number }}
+                                    </div>
+                                    <span class="badge badge-{{ get_status_badge_class(request.status) }}">
+                                        {{ get_status_display(request.status) }}
+                                    </span>
+                                </div>
+                                <div class="request-body">
+                                    <div class="request-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-file-alt"></i>
+                                            <span>{{ request.file_name }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <span>{{ format_date(request.submitted_at) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="request-footer">
+                                    <a href="{{ url_for('requests.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{{ url_for('requests.download_file', request_id=request.id) }}" class="btn btn-sm btn-outline">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>No Completed Requests</h3>
+                        <p>You don't have any completed print requests yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('requests.dashboard', page=pagination.prev_num) }}">&laquo; Previous</a>
+            {% else %}
+                <span class="disabled">&laquo; Previous</span>
+            {% endif %}
+            
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <span class="active">{{ page_num }}</span>
+                    {% else %}
+                        <a href="{{ url_for('requests.dashboard', page=page_num) }}">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span>...</span>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pagination.has_next %}
+                <a href="{{ url_for('requests.dashboard', page=pagination.next_num) }}">Next &raquo;</a>
+            {% else %}
+                <span class="disabled">Next &raquo;</span>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
 </div>
