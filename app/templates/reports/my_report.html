@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}My Print Report - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-bar"></i> My Print Report</h1>
+        <p>Overview of your printing activity</p>
+    </div>
+    
+    <!-- Summary Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_documents }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Total Documents</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-copy"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_pages }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Total Pages Printed</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-palette"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ color_pages }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Color Pages</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-adjust"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ bw_pages }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">B&W Pages</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Breakdown -->
+    <div class="report-section">
+        <h2><i class="fas fa-tasks"></i> Request Status</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ pending }}</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ in_progress }}</h3>
+                    <p>In Progress</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ completed }}</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ cancelled }}</h3>
+                    <p>Cancelled</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Details -->
+    <div class="report-section">
+        <h2><i class="fas fa-info-circle"></i> Print Details</h2>
+        <div class="report-table">
+            <table>
+                <tr>
+                    <td><i class="fas fa-file-alt"></i> Double-Sided Pages</td>
+                    <td><strong>{{ double_sided_pages }}</strong></td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-file"></i> Single-Sided Pages</td>
+                    <td><strong>{{ single_sided_pages }}</strong></td>
+                </tr>
+                <tr>
+                    <td><i class="fas fa-wallet"></i> Current Credit Balance</td>
+                    <td><strong style="color: #667eea;">GH₵ {{ "%.2f"|format(current_user.print_credit) }}</strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Recent Requests -->
+    <div class="report-section">
+        <h2><i class="fas fa-history"></i> Recent Print Requests</h2>
+        {% if requests %}
+            <div class="report-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Request #</th>
+                            <th>Document</th>
+                            <th>Pages</th>
+                            <th>Copies</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests[:10] %}
+                        <tr>
+                            <td>{{ req.request_number }}</td>
+                            <td>{{ req.file_name }}</td>
+                            <td>{{ req.number_of_pages }}</td>
+                            <td>{{ req.number_of_copies }}</td>
+                            <td>
+                                {% if req.print_format == 'color' %}
+                                    <span style="color: #f59e0b;"><i class="fas fa-palette"></i> Color</span>
+                                {% else %}
+                                    <span style="color: #6b7280;"><i class="fas fa-adjust"></i> B&W</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge badge-{{ get_status_badge_class(req.status) }}">{{ get_status_display(req.status) }}</span></td>
+                            <td>{{ format_date(req.submitted_at) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">No print requests yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.report-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.report-section h2 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+}
+
+.report-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table td, .report-table th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.report-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.report-table tr:hover {
+    background: #f9fafb;
+}
+</style>
+{% endblock %}

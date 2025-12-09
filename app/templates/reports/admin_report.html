@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Print Report - School Print Request System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-line"></i> System-Wide Print Report</h1>
+        <p>Overview of all users' printing activity</p>
+    </div>
+    
+    <!-- Overall Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_users }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Total Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_all_documents }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Total Documents</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-copy"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_all_pages }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Total Pages</p>
+            </div>
+        </div>
+        
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <i class="fas fa-palette"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="color: white;">{{ total_color_pages }}</h3>
+                <p style="color: rgba(255,255,255,0.9);">Color Pages</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Statistics Table -->
+    <div class="report-section">
+        <h2><i class="fas fa-table"></i> User Print Statistics</h2>
+        {% if user_stats %}
+            <div class="report-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Department</th>
+                            <th>Documents</th>
+                            <th>Total Pages</th>
+                            <th>Color Pages</th>
+                            <th>B&W Pages</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
+                            <th>Credit Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in user_stats %}
+                        <tr>
+                            <td><strong>{{ stat.user.name }}</strong></td>
+                            <td>{{ stat.user.faculty_department }}</td>
+                            <td>{{ stat.total_documents }}</td>
+                            <td><strong>{{ stat.total_pages }}</strong></td>
+                            <td><span style="color: #f59e0b;">{{ stat.color_pages }}</span></td>
+                            <td><span style="color: #6b7280;">{{ stat.bw_pages }}</span></td>
+                            <td><span style="color: #10b981;">{{ stat.completed }}</span></td>
+                            <td><span style="color: #f59e0b;">{{ stat.pending }}</span></td>
+                            <td><strong style="color: #667eea;">GH₵ {{ "%.2f"|format(stat.credit_balance) }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #f9fafb; font-weight: bold;">
+                            <td colspan="2">TOTAL</td>
+                            <td>{{ total_all_documents }}</td>
+                            <td>{{ total_all_pages }}</td>
+                            <td style="color: #f59e0b;">{{ total_color_pages }}</td>
+                            <td style="color: #6b7280;">{{ total_bw_pages }}</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">No user data available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.report-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.report-section h2 {
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+}
+
+.report-table {
+    overflow-x: auto;
+}
+
+.report-table table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.report-table td, .report-table th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.report-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: var(--text-primary);
+    position: sticky;
+    top: 0;
+}
+
+.report-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.report-table tfoot td {
+    border-top: 2px solid var(--primary);
+}
+</style>
+{% endblock %}
