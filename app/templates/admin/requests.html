@@ -1,18 +1,218 @@
 {% extends "base.html" %}
 
-{% block title %}Manage Requests - Admin - School Print Request System{% endblock %}
+{% block title %}Manage Print Requests - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-container {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.page-header h1 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.filter-tab {
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.filter-tab:hover {
+    color: var(--accent);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.filter-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.requests-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.requests-table th {
+    background: var(--bg-primary);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border);
+    font-size: 0.875rem;
+}
+
+.requests-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.requests-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.requests-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.request-number {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-details strong {
+    display: block;
+    color: var(--text-primary);
+}
+
+.user-details small {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-info i {
+    color: var(--danger);
+}
+
+.time-info {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.print-specs {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-state .empty-icon {
+    font-size: 4rem;
+    color: var(--border);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.status-indicator.pending {
+    color: #f59e0b;
+}
+
+.status-indicator.in-progress {
+    color: var(--accent);
+}
+
+.status-indicator.completed {
+    color: var(--success);
+}
+
+.status-indicator.cancelled {
+    color: var(--danger);
+}
+
+/* Today's requests highlighting */
+.today-request {
+    background: rgba(251, 191, 36, 0.05) !important;
+    border-left: 3px solid #f59e0b;
+}
+
+.reprint-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container admin-container">
     <div class="page-header">
-        <h1><i class="fas fa-list"></i> Manage Print Requests</h1>
-        <p>View and manage all print requests</p>
+        <h1><i class="fas fa-clipboard-list"></i> Manage Print Requests</h1>
+        <p>Monitor and manage all incoming print requests from users</p>
     </div>
     
     <!-- Filter Tabs -->
     <div class="filter-tabs">
         <a href="{{ url_for('admin.admin_requests', status='all') }}" class="filter-tab {{ 'active' if status_filter == 'all' else '' }}">
-            <i class="fas fa-th-list"></i> All ({{ all_requests|length }})
+            <i class="fas fa-th-list"></i> All Requests ({{ all_requests|length }})
         </a>
         <a href="{{ url_for('admin.admin_requests', status='pending') }}" class="filter-tab {{ 'active' if status_filter == 'pending' else '' }}">
             <i class="fas fa-clock"></i> Pending ({{ pending|length }})
@@ -28,56 +228,83 @@
         </a>
     </div>
     
-    <!-- Requests List -->
+    <!-- Requests Table -->
     {% if all_requests %}
-        <div class="requests-grid">
-            {% for request in all_requests %}
-                <div class="request-card admin-request-card fade-in">
-                    <div class="request-header">
-                        <div class="request-number">
-                            <i class="fas fa-hashtag"></i>
-                            {{ request.request_number }}
-                        </div>
-                        <span class="badge badge-{{ get_status_badge_class(request.status) }}">
-                            {{ get_status_display(request.status) }}
-                        </span>
-                    </div>
-                    
-                    <div class="request-body">
-                        <div class="request-user">
-                            <img src="{{ get_profile_picture_url(request.user) }}" alt="{{ request.user.name }}" class="user-avatar-small">
-                            <div>
-                                <strong>{{ request.user.name }}</strong>
-                                <small>{{ request.user.faculty_department }}</small>
-                            </div>
-                        </div>
-                        
-                        <div class="request-info">
-                            <div class="info-item">
-                                <i class="fas fa-file"></i>
-                                <span>{{ truncate_text(request.file_name, 40) }}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-calendar"></i>
-                                <span>{{ format_date(request.submitted_at) }}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-copy"></i>
-                                <span>{{ request.number_of_copies }} copies × {{ request.number_of_pages }} pages</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="request-footer">
-                        <a href="{{ url_for('admin.view_request', request_id=request.id) }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-eye"></i> View & Manage
-                        </a>
-                        <a href="{{ url_for('admin.download_file', request_id=request.id) }}" class="btn btn-sm btn-outline">
-                            <i class="fas fa-download"></i>
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="requests-table-container">
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> Request #</th>
+                        <th><i class="fas fa-user"></i> User</th>
+                        <th><i class="fas fa-file"></i> Document</th>
+                        <th><i class="fas fa-clock"></i> Submitted</th>
+                        <th><i class="fas fa-print"></i> Specifications</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in all_requests %}
+                        <tr class="{% if request.submitted_at.date() == today %}today-request{% endif %}">
+                            <td>
+                                <div class="request-number">{{ request.request_number }}</div>
+                                {% if request.is_reprint %}
+                                    <div class="reprint-indicator">
+                                        <i class="fas fa-redo"></i> Reprint
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="user-info">
+                                    <img src="{{ get_profile_picture_url(request.user) }}" alt="{{ request.user.name }}" class="user-avatar-small">
+                                    <div class="user-details">
+                                        <strong>{{ request.user.name }}</strong>
+                                        <small>{{ request.user.faculty_department }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="file-info">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>{{ truncate_text(request.file_name, 30) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="time-info">
+                                    {{ format_datetime(request.submitted_at) }}
+                                    {% if request.submitted_at.date() == today %}
+                                        <div style="color: var(--success); font-size: 0.75rem; margin-top: 0.25rem;">
+                                            <i class="fas fa-calendar-day"></i> Today
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="print-specs">
+                                    {{ request.number_of_copies }} copies × {{ request.number_of_pages }} pages<br>
+                                    <small>{{ 'Color' if request.print_format == 'color' else 'B&W' }} • {{ request.paper_size }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="status-indicator {{ request.status }}">
+                                    <i class="fas fa-{{ 'clock' if request.status == 'pending' else 'spinner' if request.status == 'in_progress' else 'check' if request.status == 'completed' else 'times' }}"></i>
+                                    {{ get_status_display(request.status) }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('admin.view_request', request_id=request.id) }}" class="btn btn-xs btn-primary" title="View & Manage">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.download_file', request_id=request.id) }}" class="btn btn-xs btn-outline" title="Download File">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
         <div class="empty-state">
@@ -85,7 +312,7 @@
                 <i class="fas fa-inbox"></i>
             </div>
             <h3>No Requests Found</h3>
-            <p>There are no requests matching the selected filter.</p>
+            <p>There are no print requests matching the selected filter.</p>
         </div>
     {% endif %}
 </div>

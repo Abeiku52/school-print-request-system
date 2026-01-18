@@ -24,17 +24,36 @@ class User(UserMixin, db.Model):
     faculty_department = db.Column(db.String(100), nullable=False)
     profile_picture = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
-    print_credit = db.Column(db.Float, default=100.0, nullable=False)  # Print credits
+    is_active = db.Column(db.Boolean, default=True, nullable=False)  # Account status
+    last_password_reset = db.Column(db.DateTime, nullable=True)  # Track password resets
+    password_reset_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Admin who reset password
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
     # Relationships
     print_requests = db.relationship('PrintRequest', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    credit_transactions = db.relationship('CreditTransaction', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     notifications = db.relationship('Notification', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    admin_preferences = db.relationship('AdminPreferences', backref='admin_user', lazy='dynamic', cascade='all, delete-orphan')
+    password_resets_performed = db.relationship('User', backref='password_reset_admin', remote_side=[id])
     
     def set_password(self, password):
         """Hash and set password"""
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
+        self.last_password_reset = datetime.utcnow()
+    
+    def admin_reset_password(self, password, admin_user_id):
+        """Reset password by admin with tracking"""
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
+        self.last_password_reset = datetime.utcnow()
+        self.password_reset_by = admin_user_id
+    
+    def is_account_active(self):
+        """Check if account is active"""
+        return self.is_active
+    
+    def toggle_account_status(self):
+        """Toggle account active status"""
+        self.is_active = not self.is_active
+        return self.is_active
     
     def check_password(self, password):
         """Check if provided password matches hash"""
@@ -48,37 +67,14 @@ class User(UserMixin, db.Model):
         """Get count of completed print requests"""
         return self.print_requests.filter_by(status='completed').count()
     
-    def has_sufficient_credit(self, amount):
-        """Check if user has enough credit"""
-        return self.print_credit >= amount
+    def is_account_active(self):
+        """Check if account is active"""
+        return self.is_active
     
-    def deduct_credit(self, amount, description="Print job"):
-        """Deduct credit from user account"""
-        if self.has_sufficient_credit(amount):
-            self.print_credit -= amount
-            # Create transaction record
-            transaction = CreditTransaction(
-                user_id=self.id,
-                amount=-amount,
-                balance_after=self.print_credit,
-                transaction_type='debit',
-                description=description
-            )
-            db.session.add(transaction)
-            return True
-        return False
-    
-    def add_credit(self, amount, description="Credit added"):
-        """Add credit to user account"""
-        self.print_credit += amount
-        transaction = CreditTransaction(
-            user_id=self.id,
-            amount=amount,
-            balance_after=self.print_credit,
-            transaction_type='credit',
-            description=description
-        )
-        db.session.add(transaction)
+    def toggle_account_status(self):
+        """Toggle account active status"""
+        self.is_active = not self.is_active
+        return self.is_active
     
     def __repr__(self):
         return f'<User {self.email}>'
@@ -111,6 +107,14 @@ class PrintRequest(db.Model):
     status = db.Column(db.String(20), default='pending', nullable=False)  # pending, in_progress, completed, cancelled
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    # Reprint tracking
+    original_request_id = db.Column(db.Integer, db.ForeignKey('print_requests.id'), nullable=True, index=True)
+    is_reprint = db.Column(db.Boolean, default=False, nullable=False, index=True)
+    reprint_count = db.Column(db.Integer, default=0, nullable=False)
+    
+    # Relationships
+    original_request = db.relationship('PrintRequest', remote_side=[id], backref='reprints')
     
     @staticmethod
     def generate_request_number():
@@ -171,6 +175,24 @@ class PrintRequest(db.Model):
                 # Log error but don't fail the status update
                 print(f"Warning: Failed to create notification: {str(e)}")
     
+    def can_be_reprinted(self):
+        """Check if this request can be reprinted"""
+        from app.utils import get_file_path
+        import os
+        
+        return (self.status == 'completed' and 
+                os.path.exists(get_file_path(self.file_path)))
+    
+    def increment_reprint_count(self):
+        """Increment the reprint count for this request"""
+        self.reprint_count += 1
+    
+    def get_reprint_display_name(self):
+        """Get display name for reprint requests"""
+        if self.is_reprint and self.original_request:
+            return f"Reprint of {self.original_request.request_number}"
+        return self.request_number
+    
     def __repr__(self):
         return f'<PrintRequest {self.request_number}>'
 
@@ -224,3 +246,76 @@ class Notification(db.Model):
     
     def __repr__(self):
         return f'<Notification {self.id}: {self.notification_type} for Request {self.request_id}>'
+
+
+class AdminAuditLog(db.Model):
+    """Audit log for administrative actions"""
+    __tablename__ = 'admin_audit_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    action = db.Column(db.String(100), nullable=False)  # e.g., 'password_reset', 'account_disable'
+    target_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, index=True)
+    target_request_id = db.Column(db.Integer, db.ForeignKey('print_requests.id'), nullable=True)
+    details = db.Column(db.Text, nullable=True)  # Additional context in JSON format
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    ip_address = db.Column(db.String(45), nullable=True)  # Support IPv6
+    
+    # Relationships
+    admin_user = db.relationship('User', foreign_keys=[admin_id], backref='audit_logs_created')
+    target_user = db.relationship('User', foreign_keys=[target_user_id], backref='audit_logs_received')
+    target_request = db.relationship('PrintRequest', backref='audit_logs')
+    
+    @staticmethod
+    def log_action(admin_id, action, target_user_id=None, target_request_id=None, details=None, ip_address=None):
+        """Create an audit log entry"""
+        log_entry = AdminAuditLog(
+            admin_id=admin_id,
+            action=action,
+            target_user_id=target_user_id,
+            target_request_id=target_request_id,
+            details=details,
+            ip_address=ip_address
+        )
+        db.session.add(log_entry)
+        return log_entry
+    
+    def __repr__(self):
+        return f'<AdminAuditLog {self.id}: {self.action} by Admin {self.admin_id}>'
+
+
+class AdminPreferences(db.Model):
+    """Store admin dashboard preferences"""
+    __tablename__ = 'admin_preferences'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True, index=True)
+    dashboard_layout = db.Column(db.JSON, nullable=True)  # Widget visibility and layout
+    default_filters = db.Column(db.JSON, nullable=True)  # Saved filter settings
+    items_per_page = db.Column(db.Integer, default=10, nullable=False)  # Pagination preference
+    show_statistics = db.Column(db.Boolean, default=True, nullable=False)  # Show/hide stats widgets
+    show_recent_requests = db.Column(db.Boolean, default=True, nullable=False)  # Show/hide recent requests
+    show_pending_requests = db.Column(db.Boolean, default=True, nullable=False)  # Show/hide pending requests
+    auto_refresh_interval = db.Column(db.Integer, default=30, nullable=False)  # Auto-refresh interval in seconds
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    @staticmethod
+    def get_or_create_preferences(admin_id):
+        """Get existing preferences or create default ones"""
+        preferences = AdminPreferences.query.filter_by(admin_id=admin_id).first()
+        if not preferences:
+            preferences = AdminPreferences(admin_id=admin_id)
+            db.session.add(preferences)
+            db.session.commit()
+        return preferences
+    
+    def update_preferences(self, **kwargs):
+        """Update preferences with provided values"""
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        self.updated_at = datetime.utcnow()
+    
+    def __repr__(self):
+        return f'<AdminPreferences {self.id}: Admin {self.admin_id}>'

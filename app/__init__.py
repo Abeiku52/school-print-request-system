@@ -39,7 +39,7 @@ def create_app(config_name='default'):
         os.makedirs(os.path.join(upload_folder, 'profiles'), exist_ok=True)
     
     # Register blueprints
-    from app.routes import main, auth, requests, profile, admin, errors, reports
+    from app.routes import main, auth, requests, profile, admin, errors, reports, help
     from app.api import bp as api_bp
     
     app.register_blueprint(main.bp)
@@ -49,6 +49,7 @@ def create_app(config_name='default'):
     app.register_blueprint(admin.bp)
     app.register_blueprint(errors.bp)
     app.register_blueprint(reports.bp)  # Register reports blueprint
+    app.register_blueprint(help.bp)  # Register help blueprint
     app.register_blueprint(api_bp)  # Register API blueprint
     
     # Register template helpers

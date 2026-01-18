@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}User Guide - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-question-circle"></i> User Guide</h1>
+        <p>Learn how to use the Print Request System effectively</p>
+    </div>
+
+    <div class="guide-container">
+        <!-- Quick Start -->
+        <div class="guide-section">
+            <h2><i class="fas fa-rocket"></i> Quick Start</h2>
+            <div class="guide-content">
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Submit a Print Request</h3>
+                            <p>Click "New Request" to upload your document and specify print settings.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Track Your Request</h3>
+                            <p>Monitor progress on your dashboard. You'll receive notifications for status updates.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Collect Your Prints</h3>
+                            <p>When completed, collect your documents from the print center.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="guide-section">
+            <h2><i class="fas fa-star"></i> Key Features</h2>
+            <div class="guide-content">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-redo"></i>
+                        </div>
+                        <h3>Reprint Documents</h3>
+                        <p>Easily reprint completed requests without re-uploading files. Just click the "Reprint" button on any completed request.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Real-time Notifications</h3>
+                        <p>Get instant updates when your request status changes. Check the bell icon for new notifications.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Easy Search</h3>
+                        <p>Find your requests quickly using the search bar. Search by request number, file name, or status.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to Reprint -->
+        <div class="guide-section">
+            <h2><i class="fas fa-redo"></i> How to Reprint Documents</h2>
+            <div class="guide-content">
+                <div class="reprint-steps">
+                    <div class="reprint-step">
+                        <h3>1. Find Your Completed Request</h3>
+                        <p>Go to your dashboard and look for requests with "Completed" status. These will show a blue "Reprint" button.</p>
+                    </div>
+                    <div class="reprint-step">
+                        <h3>2. Click Reprint</h3>
+                        <p>Click the "Reprint" button on any completed request. This will open a form pre-filled with your original settings.</p>
+                    </div>
+                    <div class="reprint-step">
+                        <h3>3. Modify Settings (Optional)</h3>
+                        <p>Adjust the number of copies, paper size, color options, or finishing preferences as needed.</p>
+                    </div>
+                    <div class="reprint-step">
+                        <h3>4. Submit</h3>
+                        <p>Click "Create Reprint Request" to submit. You'll get a new request number and can track it separately.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="guide-section">
+            <h2><i class="fas fa-lightbulb"></i> Tips & Best Practices</h2>
+            <div class="guide-content">
+                <div class="tips-list">
+                    <div class="tip">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Check your credit balance</strong> before submitting large print jobs.</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Use page ranges</strong> to print only specific pages (e.g., "1-5, 8, 10-15").</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Enable notifications</strong> in your browser to get instant updates.</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Keep request numbers</strong> for easy reference when collecting prints.</p>
+                    </div>
+                    <div class="tip">
+                        <i class="fas fa-check-circle"></i>
+                        <p><strong>Use reprints</strong> to save time when you need additional copies.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Guide -->
+        <div class="guide-section">
+            <h2><i class="fas fa-info-circle"></i> Request Status Guide</h2>
+            <div class="guide-content">
+                <div class="status-guide">
+                    <div class="status-item">
+                        <span class="badge badge-pending">Pending</span>
+                        <p>Your request is waiting to be reviewed by administrators.</p>
+                    </div>
+                    <div class="status-item">
+                        <span class="badge badge-in-progress">In Progress</span>
+                        <p>Your request is being processed and printed.</p>
+                    </div>
+                    <div class="status-item">
+                        <span class="badge badge-completed">Completed</span>
+                        <p>Your prints are ready for collection. You can also reprint from here.</p>
+                    </div>
+                    <div class="status-item">
+                        <span class="badge badge-cancelled">Cancelled</span>
+                        <p>The request was cancelled (by you or an administrator).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="guide-section">
+            <h2><i class="fas fa-headset"></i> Need Help?</h2>
+            <div class="guide-content">
+                <div class="contact-info">
+                    <p>If you need assistance or have questions:</p>
+                    <div class="contact-methods">
+                        <a href="https://wa.me/233593228559" class="contact-method" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp: +233 (0) 593228559</span>
+                        </a>
+                        <a href="mailto:equagraine@lincoln.edu.gh" class="contact-method">
+                            <i class="fas fa-envelope"></i>
+                            <span>Email: equagraine@lincoln.edu.gh</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.guide-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.guide-section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.guide-section h2 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.step-number {
+    background: var(--accent);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+
+.reprint-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.reprint-step {
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border-left: 4px solid var(--accent);
+}
+
+.reprint-step h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--accent);
+}
+
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.tip i {
+    color: var(--success);
+    margin-top: 0.25rem;
+}
+
+.status-guide {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+}
+
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: background 0.2s ease;
+}
+
+.contact-method:hover {
+    background: var(--border);
+}
+
+.contact-method i {
+    color: var(--accent);
+    font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    .guide-section {
+        padding: 1.5rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .step {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

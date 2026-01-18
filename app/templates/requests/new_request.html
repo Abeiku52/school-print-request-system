@@ -138,28 +138,9 @@
                 
                 <!-- Print Sides -->
                 <div class="form-group full-width">
-                    <label>
-                        Print Sides <span class="required">*</span>
-                    </label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="is_double_sided" value="false" checked required>
-                            <span class="radio-custom"></span>
-                            <span class="radio-text">
-                                <i class="fas fa-file"></i>
-                                Single-Sided
-                                <small>Print on one side only</small>
-                            </span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="is_double_sided" value="true" required>
-                            <span class="radio-custom"></span>
-                            <span class="radio-text">
-                                <i class="fas fa-copy"></i>
-                                Double-Sided
-                                <small>Print on both sides</small>
-                            </span>
-                        </label>
+                    <div class="form-check">
+                        {{ form.is_double_sided(class="form-check-input") }}
+                        {{ form.is_double_sided.label(class="form-check-label") }}
                     </div>
                 </div>
                 

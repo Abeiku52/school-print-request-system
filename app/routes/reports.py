@@ -81,8 +81,7 @@ def admin_report():
             'completed': completed,
             'pending': pending,
             'color_pages': color_pages,
-            'bw_pages': bw_pages,
-            'credit_balance': user.print_credit
+            'bw_pages': bw_pages
         })
     
     # Sort by total pages (highest first)

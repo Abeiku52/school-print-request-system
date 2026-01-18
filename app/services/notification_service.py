@@ -242,3 +242,57 @@ class NotificationService:
             db.session.rollback()
             print(f"Error deleting notification: {str(e)}")
             return False
+
+    
+    @staticmethod
+    def notify_admins_new_request(request_id):
+        """
+        Notify all admins when a new print request is submitted
+        
+        Args:
+            request_id: ID of the new print request
+            
+        Returns:
+            int: Number of admins notified
+        """
+        try:
+            from app.models import User
+            
+            # Get the request
+            request = PrintRequest.query.get(request_id)
+            if not request:
+                return 0
+            
+            # Get all admin users
+            admins = User.query.filter_by(is_admin=True).all()
+            
+            count = 0
+            for admin in admins:
+                # Create notification message based on request type
+                if request.is_reprint:
+                    original_number = request.original_request.request_number if request.original_request else "Unknown"
+                    message = f'New reprint request {request.request_number} (original: {original_number}) submitted by {request.user.name}'
+                else:
+                    message = f'New print request {request.request_number} submitted by {request.user.name}'
+                
+                # Create notification
+                notification = Notification(
+                    user_id=admin.id,
+                    request_id=request_id,
+                    message=message,
+                    notification_type='new_request',
+                    status='pending',
+                    is_read=False,
+                    created_at=datetime.utcnow()
+                )
+                
+                db.session.add(notification)
+                count += 1
+            
+            db.session.commit()
+            return count
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error notifying admins: {str(e)}")
+            return 0

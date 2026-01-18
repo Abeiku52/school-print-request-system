@@ -12,6 +12,8 @@ def login():
     """User login"""
     # Redirect if already logged in
     if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('admin.dashboard'))
         return redirect(url_for('requests.dashboard'))
     
     form = LoginForm()
@@ -26,10 +28,14 @@ def login():
             login_user(user, remember=form.remember_me.data)
             flash('Welcome back! You have been logged in successfully.', 'success')
             
-            # Redirect to next page or dashboard
+            # Redirect to next page or appropriate dashboard
             next_page = request.args.get('next')
             if next_page:
                 return redirect(next_page)
+            
+            # Redirect based on user role
+            if user.is_admin:
+                return redirect(url_for('admin.dashboard'))
             return redirect(url_for('requests.dashboard'))
         else:
             flash('Invalid email or password. Please try again.', 'error')
@@ -42,6 +48,8 @@ def register():
     """User registration"""
     # Redirect if already logged in
     if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('admin.dashboard'))
         return redirect(url_for('requests.dashboard'))
     
     form = RegistrationForm()

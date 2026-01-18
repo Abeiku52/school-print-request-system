@@ -7,14 +7,13 @@ A modern, user-friendly web application for managing print requests at Lincoln C
 ### For Staff Members
 - **Submit Print Requests**: Upload documents and specify printing requirements
 - **Track Requests**: Monitor the status of all print requests in real-time
-- **Print Credit Management**: View and manage print credit balance
 - **Notifications**: Receive instant notifications when request status changes
 - **Request History**: Search and filter through past print requests
 - **Mobile Friendly**: Full functionality on smartphones and tablets
 
 ### For Administrators
 - **Request Management**: Review, approve, and process print requests
-- **User Management**: Manage staff accounts and credit allocations
+- **User Management**: Manage staff accounts and permissions
 - **Dashboard Analytics**: View system statistics and usage reports
 - **Status Updates**: Update request status with automatic user notifications
 - **Reporting**: Generate comprehensive reports on print usage
@@ -162,6 +161,6 @@ For technical support or questions:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: December 2024  
-**Developed for**: Lincoln Community School
+**Version**: 2.0.0  
+**Last Updated**: January 2025  
+**Developed for**: Educational Institutions Worldwide

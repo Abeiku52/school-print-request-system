@@ -43,10 +43,13 @@ class NotificationBell {
         // Initial fetch
         this.fetchNotifications();
         
-        // Poll for new notifications every 30 seconds
+        // Poll for new notifications more frequently (every 15 seconds)
         setInterval(() => {
             this.fetchNotifications();
-        }, 30000);
+        }, 15000);
+        
+        // Add visual feedback for new notifications
+        this.lastNotificationCount = 0;
     }
     
     async fetchNotifications() {
@@ -78,11 +81,24 @@ class NotificationBell {
     }
     
     updateBadge() {
+        // Check for new notifications
+        if (this.lastNotificationCount > 0 && this.unreadCount > this.lastNotificationCount) {
+            // New notification arrived - add visual feedback
+            this.bellButton.classList.add('notification-pulse');
+            setTimeout(() => {
+                this.bellButton.classList.remove('notification-pulse');
+            }, 2000);
+        }
+        
+        this.lastNotificationCount = this.unreadCount;
+        
         if (this.unreadCount > 0) {
             this.badge.textContent = this.unreadCount > 99 ? '99+' : this.unreadCount;
             this.badge.style.display = 'block';
+            this.bellButton.classList.add('has-notifications');
         } else {
             this.badge.style.display = 'none';
+            this.bellButton.classList.remove('has-notifications');
         }
         
         // Show/hide mark all read button

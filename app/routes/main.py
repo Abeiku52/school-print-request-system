@@ -7,9 +7,12 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def index():
     """Home page"""
-    # Redirect to dashboard if logged in, otherwise to login
+    # Redirect to appropriate dashboard based on user type
     if current_user.is_authenticated:
-        return redirect(url_for('requests.dashboard'))
+        if current_user.is_admin:
+            return redirect(url_for('admin.dashboard'))
+        else:
+            return redirect(url_for('requests.dashboard'))
     return redirect(url_for('auth.login'))
 
 

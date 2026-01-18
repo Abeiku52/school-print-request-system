@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Reprint History - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-title">
+                <h1><i class="fas fa-history"></i> Reprint History</h1>
+                <p>All reprints for request {{ original_request.request_number }}</p>
+            </div>
+            <div class="page-actions">
+                <a href="{{ url_for('requests.view_request', request_id=original_request.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Original
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Original Request Info -->
+    <div class="info-card">
+        <div class="info-header">
+            <h3><i class="fas fa-file-alt"></i> Original Request</h3>
+        </div>
+        <div class="info-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Request Number:</label>
+                    <span class="info-value">{{ original_request.request_number }}</span>
+                </div>
+                <div class="info-item">
+                    <label>File Name:</label>
+                    <span class="info-value">{{ original_request.file_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Total Reprints:</label>
+                    <span class="info-value">{{ original_request.reprint_count }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Status:</label>
+                    <span class="badge {{ original_request.get_status_badge_class() }}">
+                        {{ original_request.status.title() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reprint History -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3><i class="fas fa-list"></i> Reprint Requests</h3>
+        </div>
+        
+        {% if reprints %}
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Request Number</th>
+                            <th>Submitted</th>
+                            <th>Copies</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reprint in reprints %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('requests.view_request', request_id=reprint.id) }}" class="link-primary">
+                                    {{ reprint.request_number }}
+                                </a>
+                            </td>
+                            <td>{{ reprint.submitted_at.strftime('%b %d, %Y') }}</td>
+                            <td>{{ reprint.number_of_copies }}</td>
+                            <td>
+                                <span class="spec-badge spec-badge-{{ 'color' if reprint.print_format == 'color' else 'bw' }}">
+                                    {{ 'Color' if reprint.print_format == 'color' else 'B&W' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {{ reprint.get_status_badge_class() }}">
+                                    {{ reprint.status.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('requests.view_request', request_id=reprint.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-history"></i>
+                <h3>No Reprints Yet</h3>
+                <p>This document hasn't been reprinted yet.</p>
+                {% if original_request.can_be_reprinted() %}
+                    <a href="{{ url_for('requests.reprint_request', request_id=original_request.id) }}" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Create First Reprint
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

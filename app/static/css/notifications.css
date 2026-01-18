@@ -402,3 +402,102 @@
         font-size: 0.85rem;
     }
 }
+/* Enhanced Notification Bell Animations */
+.notification-bell-button.notification-pulse {
+    animation: notificationPulse 1s ease-in-out 2;
+}
+
+.notification-bell-button.has-notifications {
+    color: var(--accent);
+}
+
+.notification-bell-button.has-notifications:hover {
+    color: var(--accent-dark);
+}
+
+@keyframes notificationPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+/* Improved notification dropdown */
+.notification-dropdown {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.notification-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* Better notification item styling */
+.notification-item {
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.notification-item.unread {
+    background: rgba(59, 130, 246, 0.05);
+    border-left-color: var(--accent);
+}
+
+.notification-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+    transform: translateX(2px);
+}
+
+/* Notification type indicators */
+.notification-icon.status-pending {
+    background: rgba(251, 191, 36, 0.1);
+    color: #f59e0b;
+}
+
+.notification-icon.status-in_progress {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent);
+}
+
+.notification-icon.status-completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.notification-icon.status-cancelled {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+/* New request notification styling */
+.notification-item[data-type="new_request"] {
+    border-left-color: var(--success);
+}
+
+.notification-item[data-type="new_request"] .notification-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}

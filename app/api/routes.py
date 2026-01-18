@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from app.api import bp
-from app.models import User, PrintRequest, CreditTransaction, Notification
+from app.models import User, PrintRequest, Notification
 from app import db
 from app.api.auth import token_required
 from app.services import NotificationService
@@ -30,7 +30,6 @@ def get_users(current_user):
             'name': u.name,
             'email': u.email,
             'department': u.faculty_department,
-            'credit': u.print_credit,
             'is_admin': u.is_admin
         } for u in users]
     })
@@ -49,60 +48,8 @@ def get_user(current_user, user_id):
         'name': user.name,
         'email': user.email,
         'department': user.faculty_department,
-        'credit': user.print_credit,
         'is_admin': user.is_admin,
         'created_at': user.created_at.isoformat()
-    })
-
-
-@bp.route('/users/<int:user_id>/credit', methods=['POST'])
-@token_required
-def manage_credit(current_user, user_id):
-    """Add or deduct credit (admin only)"""
-    if not current_user.is_admin:
-        return jsonify({'error': 'Admin access required'}), 403
-    
-    user = User.query.get_or_404(user_id)
-    data = request.get_json()
-    
-    amount = data.get('amount')
-    description = data.get('description', 'Admin adjustment')
-    
-    if not amount or not isinstance(amount, (int, float)):
-        return jsonify({'error': 'Valid amount required'}), 400
-    
-    if amount > 0:
-        user.add_credit(amount, description)
-    else:
-        user.deduct_credit(abs(amount), description)
-    
-    db.session.commit()
-    
-    return jsonify({
-        'message': 'Credit updated successfully',
-        'new_balance': user.print_credit
-    })
-
-
-@bp.route('/users/<int:user_id>/transactions', methods=['GET'])
-@token_required
-def get_transactions(current_user, user_id):
-    """Get user's credit transactions"""
-    if not current_user.is_admin and current_user.id != user_id:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    user = User.query.get_or_404(user_id)
-    transactions = user.credit_transactions.order_by(CreditTransaction.created_at.desc()).limit(50).all()
-    
-    return jsonify({
-        'transactions': [{
-            'id': t.id,
-            'amount': t.amount,
-            'balance_after': t.balance_after,
-            'type': t.transaction_type,
-            'description': t.description,
-            'created_at': t.created_at.isoformat()
-        } for t in transactions]
     })
 
 

@@ -61,6 +61,24 @@
                             </button>
                         </div>
                         <div class="sidebar-links">
+                            {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Admin Dashboard</span>
+                            </a>
+                            <a href="{{ url_for('admin.admin_requests') }}" class="sidebar-link">
+                                <i class="fas fa-list"></i>
+                                <span>Manage Print Requests</span>
+                            </a>
+                            <a href="{{ url_for('admin.users') }}" class="sidebar-link">
+                                <i class="fas fa-users"></i>
+                                <span>Manage Users</span>
+                            </a>
+                            <a href="{{ url_for('reports.admin_report') }}" class="sidebar-link">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Reports</span>
+                            </a>
+                            {% else %}
                             <a href="{{ url_for('requests.dashboard') }}" class="sidebar-link">
                                 <i class="fas fa-lion"></i>
                                 <span>Dashboard</span>
@@ -69,20 +87,9 @@
                                 <i class="fas fa-plus-circle"></i>
                                 <span>New Request</span>
                             </a>
-                            {% if not current_user.is_admin %}
                             <a href="{{ url_for('reports.my_report') }}" class="sidebar-link">
                                 <i class="fas fa-chart-bar"></i>
                                 <span>My Report</span>
-                            </a>
-                            {% endif %}
-                            {% if current_user.is_admin %}
-                            <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link">
-                                <i class="fas fa-user-shield"></i>
-                                <span>Admin Dashboard</span>
-                            </a>
-                            <a href="{{ url_for('reports.admin_report') }}" class="sidebar-link">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Reports</span>
                             </a>
                             {% endif %}
                             <div class="sidebar-divider"></div>
@@ -111,12 +118,6 @@
                     
                     <!-- Right Side Items -->
                     <div class="navbar-right">
-                        <!-- Credit Balance -->
-                        <div class="navbar-credit">
-                            <i class="fas fa-wallet"></i>
-                            <span class="credit-amount">GH₵ {{ "%.2f"|format(current_user.print_credit) }}</span>
-                        </div>
-                        
                         <!-- Notification Bell -->
                     <div class="notification-bell-container">
                         <button class="notification-bell-button" id="notificationBell" aria-label="Notifications">
@@ -227,8 +228,14 @@
                     <h4>Quick Links</h4>
                     <ul>
                         {% if current_user.is_authenticated %}
+                            {% if current_user.is_admin %}
+                            <li><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+                            <li><a href="{{ url_for('admin.admin_requests') }}">Manage Print Requests</a></li>
+                            <li><a href="{{ url_for('admin.users') }}">Manage Users</a></li>
+                            {% else %}
                             <li><a href="{{ url_for('requests.dashboard') }}">Dashboard</a></li>
                             <li><a href="{{ url_for('requests.new_request') }}">New Request</a></li>
+                            {% endif %}
                             <li><a href="{{ url_for('profile.view_profile') }}">My Profile</a></li>
                         {% else %}
                             <li><a href="{{ url_for('auth.login') }}">Login</a></li>
@@ -239,7 +246,7 @@
                 <div class="footer-section">
                     <h4>Support</h4>
                     <ul>
-                        <li><a href="#">Help Center</a></li>
+                        <li><a href="{{ url_for('help.user_guide') }}"><i class="fas fa-book"></i> User Guide</a></li>
                         <li><a href="#">Contact Us</a></li>
                         <li><a href="#">FAQs</a></li>
                     </ul>

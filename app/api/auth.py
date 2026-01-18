@@ -74,7 +74,6 @@ def api_login():
             'id': user.id,
             'name': user.name,
             'email': user.email,
-            'credit': user.print_credit,
             'is_admin': user.is_admin
         }
     })

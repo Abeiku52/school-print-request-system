@@ -68,7 +68,6 @@
                             <th>B&W Pages</th>
                             <th>Completed</th>
                             <th>Pending</th>
-                            <th>Credit Balance</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,7 +81,6 @@
                             <td><span style="color: #6b7280;">{{ stat.bw_pages }}</span></td>
                             <td><span style="color: #10b981;">{{ stat.completed }}</span></td>
                             <td><span style="color: #f59e0b;">{{ stat.pending }}</span></td>
-                            <td><strong style="color: #667eea;">GH₵ {{ "%.2f"|format(stat.credit_balance) }}</strong></td>
                         </tr>
                         {% endfor %}
                     </tbody>

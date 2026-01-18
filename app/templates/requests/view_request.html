@@ -32,11 +32,43 @@
                             </td>
                             <td class="table-value">
                                 <strong>{{ request.request_number }}</strong>
+                                {% if request.is_reprint %}
+                                    <span class="badge badge-info">
+                                        <i class="fas fa-redo"></i> Reprint
+                                    </span>
+                                {% endif %}
                                 <button onclick="copyToClipboard('{{ request.request_number }}')" class="btn-icon" data-tooltip="Copy to clipboard">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </td>
                         </tr>
+                        {% if request.is_reprint and request.original_request %}
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-link"></i>
+                                Original Request
+                            </td>
+                            <td class="table-value">
+                                <a href="{{ url_for('requests.view_request', request_id=request.original_request.id) }}" class="link-primary">
+                                    {{ request.original_request.request_number }}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if not request.is_reprint and request.reprint_count > 0 %}
+                        <tr>
+                            <td class="table-label">
+                                <i class="fas fa-history"></i>
+                                Reprints
+                            </td>
+                            <td class="table-value">
+                                <span class="badge badge-secondary">{{ request.reprint_count }} reprint{{ 's' if request.reprint_count != 1 else '' }}</span>
+                                <a href="{{ url_for('requests.reprint_history', request_id=request.id) }}" class="link-secondary">
+                                    <i class="fas fa-eye"></i> View History
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
                         <tr>
                             <td class="table-label">
                                 <i class="fas fa-user"></i>
@@ -209,6 +241,12 @@
             <a href="{{ url_for('requests.download_file', request_id=request.id) }}" class="btn btn-primary">
                 <i class="fas fa-download"></i> Download File
             </a>
+            
+            {% if request.can_be_reprinted() %}
+                <a href="{{ url_for('requests.reprint_request', request_id=request.id) }}" class="btn btn-accent">
+                    <i class="fas fa-redo"></i> Reprint Document
+                </a>
+            {% endif %}
             
             {% if request.status == 'pending' and request.user_id == current_user.id %}
                 <form method="POST" action="{{ url_for('requests.cancel_request', request_id=request.id) }}" style="display: inline;" onsubmit="return confirmAction('Are you sure you want to cancel this request?')">

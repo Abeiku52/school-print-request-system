@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import db
 from app.utils.decorators import admin_required
 from app.models import PrintRequest, User
@@ -14,6 +14,8 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_required
 def dashboard():
     """Admin dashboard overview"""
+    from datetime import date
+    
     # Get statistics
     total_requests = PrintRequest.query.count()
     pending_count = PrintRequest.query.filter_by(status='pending').count()
@@ -21,7 +23,17 @@ def dashboard():
     completed_count = PrintRequest.query.filter_by(status='completed').count()
     total_users = User.query.filter_by(is_admin=False).count()
     
-    # Get recent requests
+    # Get today's requests count
+    today = date.today()
+    today_requests_count = PrintRequest.query.filter(
+        PrintRequest.submitted_at >= today
+    ).count()
+    
+    # Get new/pending requests (most important for admin)
+    new_requests = PrintRequest.query.filter_by(status='pending')\
+        .order_by(PrintRequest.submitted_at.desc()).limit(15).all()
+    
+    # Get recent requests (all statuses)
     recent_requests = PrintRequest.query.order_by(PrintRequest.submitted_at.desc()).limit(10).all()
     
     return render_template('admin/dashboard.html',
@@ -30,7 +42,10 @@ def dashboard():
                          in_progress_count=in_progress_count,
                          completed_count=completed_count,
                          total_users=total_users,
-                         recent_requests=recent_requests)
+                         today_requests_count=today_requests_count,
+                         new_requests=new_requests,
+                         recent_requests=recent_requests,
+                         today=today)
 
 
 @bp.route('/requests')
@@ -38,6 +53,8 @@ def dashboard():
 @admin_required
 def admin_requests():
     """Admin view of all print requests"""
+    from datetime import date
+    
     # Get filter from query params
     status_filter = request.args.get('status', 'all')
     
@@ -63,7 +80,8 @@ def admin_requests():
                          in_progress=in_progress,
                          completed=completed,
                          cancelled=cancelled,
-                         status_filter=status_filter)
+                         status_filter=status_filter,
+                         today=date.today())
 
 
 @bp.route('/request/<int:request_id>')
@@ -163,3 +181,58 @@ def view_user(user_id):
         .order_by(PrintRequest.submitted_at.desc()).all()
     
     return render_template('admin/view_user.html', user=user, requests=user_requests)
+
+@bp.route('/user/<int:user_id>/reset-password', methods=['POST'])
+@login_required
+@admin_required
+def reset_user_password(user_id):
+    """Reset a user's password using the UserManagementService"""
+    from flask import jsonify
+    from app.services.user_management_service import UserManagementService
+    
+    try:
+        # Get new password from request
+        data = request.get_json()
+        new_password = data.get('new_password')
+        
+        if not new_password:
+            return jsonify({'success': False, 'message': 'New password is required'}), 400
+        
+        # Use the enhanced service to reset password
+        result = UserManagementService.reset_user_password(
+            user_id=user_id,
+            new_password=new_password,
+            admin_user_id=current_user.id
+        )
+        
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@bp.route('/user/<int:user_id>/toggle-status', methods=['POST'])
+@login_required
+@admin_required
+def toggle_user_status(user_id):
+    """Enable/disable a user account using the UserManagementService"""
+    from flask import jsonify
+    from app.services.user_management_service import UserManagementService
+    
+    try:
+        # Use the enhanced service to toggle user status
+        result = UserManagementService.toggle_user_account_status(
+            user_id=user_id,
+            admin_user_id=current_user.id
+        )
+        
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500

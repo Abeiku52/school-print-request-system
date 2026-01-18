@@ -32,7 +32,6 @@ Get an authentication token.
     "id": 1,
     "name": "Admin User",
     "email": "admin@school.edu",
-    "credit": 100.0,
     "is_admin": true
   }
 }
@@ -69,7 +68,6 @@ Check API status (no auth required).
       "name": "John Doe",
       "email": "john@school.edu",
       "department": "Mathematics",
-      "credit": 85.5,
       "is_admin": false
     }
   ]
@@ -87,69 +85,8 @@ Check API status (no auth required).
   "name": "John Doe",
   "email": "john@school.edu",
   "department": "Mathematics",
-  "credit": 85.5,
   "is_admin": false,
   "created_at": "2024-01-15T10:00:00"
-}
-```
-
-#### Manage Credit (Admin Only)
-
-**POST** `/api/v1/users/<user_id>/credit`
-
-Add or deduct credit from a user's account.
-
-**Request:**
-```json
-{
-  "amount": 50.0,
-  "description": "Monthly credit allocation"
-}
-```
-
-Use negative amount to deduct:
-```json
-{
-  "amount": -10.5,
-  "description": "Print job cost"
-}
-```
-
-**Response:**
-```json
-{
-  "message": "Credit updated successfully",
-  "new_balance": 135.5
-}
-```
-
-#### Get Credit Transactions
-
-**GET** `/api/v1/users/<user_id>/transactions`
-
-Get user's credit transaction history (last 50).
-
-**Response:**
-```json
-{
-  "transactions": [
-    {
-      "id": 1,
-      "amount": 50.0,
-      "balance_after": 150.0,
-      "type": "credit",
-      "description": "Monthly allocation",
-      "created_at": "2024-11-26T10:00:00"
-    },
-    {
-      "id": 2,
-      "amount": -10.5,
-      "balance_after": 139.5,
-      "type": "debit",
-      "description": "Print job #PR-20241126-ABC123",
-      "created_at": "2024-11-26T11:30:00"
-    }
-  ]
 }
 ```
 
